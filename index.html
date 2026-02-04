@@ -1,16 +1,1538 @@
-<!doctype html>
-<html>
-<body>
-  <div class="container">
-    <h1>hello, world</h1>
-    <hr>
-    <p>
-      <a href="#" class="btn btn-primary btn-lg" id="alert">alert</a>
-    </p>
-  </div>
 
-  <script src="vendor/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-  <script src="script.js"></script>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Снежный спринтер: Гласные</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 500px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            background: #0f172a;
+        }
+
+        /* Экраны */
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 40px;
+            text-align: center;
+            z-index: 1000;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            color: #ffffff;
+            font-size: 52px;
+            margin-bottom: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            color: #ffffff;
+            font-size: 40px;
+            margin-bottom: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #cbd5e1;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 48px;
+            max-width: 600px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* Кнопки */
+        .btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 18px 48px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 12px 24px rgba(100, 116, 139, 0.3);
+        }
+
+        /* Игровое поле */
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Интерфейс во время игры */
+        .game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .ui-panel {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 16px 24px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .distance-panel {
+            top: 28px;
+            right: 28px;
+            font-size: 22px;
+        }
+
+        .distance-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* Жизни */
+        .lives-panel {
+            top: 28px;
+            left: 28px;
+        }
+
+        .lives-count {
+            font-size: 16px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-right: 4px;
+        }
+
+        .life {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .life.lost {
+            opacity: 0.3;
+            transform: scale(0.9);
+            box-shadow: none;
+        }
+
+        .life::before {
+            content: '❤️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+        }
+
+        /* Окно задания */
+        .task-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            pointer-events: auto;
+        }
+
+        .task-window {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            min-width: 500px;
+            max-width: 90vw;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .task-title {
+            color: #e2e8f0;
+            font-size: 18px;
+            margin-bottom: 32px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .task-word {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 56px;
+            margin: 32px 0;
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 4px;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .letter {
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .letter.blank {
+            color: #fbbf24;
+            border-bottom: 3px solid #f59e0b;
+            margin: 0 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .letter.filled {
+            color: #10b981;
+            animation: pop 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Кнопки гласных */
+        .vowel-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 32px;
+            max-width: 500px;
+        }
+
+        .vowel-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .vowel-btn:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .vowel-btn:active {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            transform: translateY(0);
+        }
+
+        /* Экран результатов */
+        .results {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            padding: 40px;
+            margin: 32px 0;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 400px;
+        }
+
+        .result-item {
+            font-size: 18px;
+            margin: 20px 0;
+            color: #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-value {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            color: #60a5fa;
+            font-size: 24px;
+        }
+
+        /* Грустный мальчик на экране Game Over */
+        .sad-character {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* Инструкции */
+        .instructions {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 32px;
+            border-radius: 20px;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            font-size: 16px;
+            color: #e2e8f0;
+            text-align: left;
+        }
+
+        .instruction-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 10px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            flex-shrink: 0;
+            font-weight: 600;
+        }
+
+        /* Загрузочный экран */
+        #loading-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            #game-container {
+                height: 500px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+                padding: 0 20px;
+            }
+
+            .btn {
+                padding: 16px 32px;
+                font-size: 16px;
+            }
+
+            .distance-panel,
+            .lives-panel {
+                top: 20px;
+                padding: 12px 20px;
+                font-size: 18px;
+            }
+
+            .distance-panel {
+                right: 20px;
+            }
+
+            .lives-panel {
+                left: 20px;
+            }
+
+            .task-window {
+                min-width: 90vw;
+                padding: 32px 24px;
+            }
+
+            .task-word {
+                font-size: 42px;
+                letter-spacing: 2px;
+            }
+
+            .letter {
+                min-width: 45px;
+            }
+
+            .vowel-buttons {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+            }
+
+            .vowel-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .results {
+                min-width: 90vw;
+                padding: 24px;
+            }
+
+            .result-item {
+                font-size: 16px;
+            }
+
+            .result-value {
+                font-size: 20px;
+            }
+
+            .sad-character {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .task-word {
+                font-size: 36px;
+                letter-spacing: 1px;
+            }
+
+            .letter {
+                min-width: 36px;
+            }
+
+            .vowel-buttons {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+
+            .vowel-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .instructions {
+                padding: 20px;
+            }
+
+            .instruction-item {
+                font-size: 14px;
+            }
+
+            .sad-character {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        /* Отключение выделения текста */
+        .no-select {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Экран загрузки -->
+        <div id="loading-screen" class="screen">
+            <div class="loader"></div>
+            <h2 style="color: #ffffff; margin-top: 20px;">Загрузка...</h2>
+            <p id="loading-progress" style="color: #94a3b8; margin-top: 10px;">0/12 изображений</p>
+        </div>
+
+        <!-- Стартовый экран -->
+        <div id="start-screen" class="screen hidden">
+            <h1>СНЕЖНЫЙ СПРИНТЕР</h1>
+            <p class="subtitle">Помоги школьнику добраться до школы! Прыгай через сугробы и заполняй пропущенные гласные в словах.</p>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <div class="instruction-icon">🏃</div>
+                    <span><strong>ПРОБЕЛ</strong> или <strong>ТАП</strong> — прыжок через сугроб</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">📝</div>
+                    <span>При столкновении — заполни пропущенные гласные</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">❤️</div>
+                    <span>У тебя <strong>3 жизни</strong>. Ошибка = потеря жизни</span>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">🏆</div>
+                    <span>Пробеги как можно дальше и запомни больше слов!</span>
+                </div>
+            </div>
+            
+            <button id="start-btn" class="btn">НАЧАТЬ ИГРУ</button>
+            <p style="margin-top: 24px; color: #94a3b8; font-size: 14px; letter-spacing: 0.5px;">ПК: ПРОБЕЛ • ТЕЛЕФОН: ТАП</p>
+        </div>
+
+        <!-- Игровой экран -->
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Интерфейс во время игры -->
+        <div id="game-ui" class="game-ui hidden">
+            <div class="lives-panel ui-panel">
+                <span class="lives-count">Жизни</span>
+                <div class="life"></div>
+                <div class="life"></div>
+                <div class="life"></div>
+            </div>
+            
+            <div class="distance-panel ui-panel">
+                <div class="distance-icon">📏</div>
+                <span id="distance">0</span> метров
+            </div>
+        </div>
+
+        <!-- Окно задания -->
+        <div id="task-overlay" class="task-overlay hidden">
+            <div class="task-window">
+                <div class="task-title">Заполни пропущенные гласные</div>
+                <div id="task-word" class="task-word"></div>
+                <div id="vowel-buttons" class="vowel-buttons"></div>
+                <p style="color: #94a3b8; margin-top: 24px; font-size: 14px;">Выбери правильную гласную</p>
+            </div>
+        </div>
+
+        <!-- Экран Game Over -->
+        <div id="game-over-screen" class="screen hidden">
+            <div id="sad-character" class="sad-character"></div>
+            <h2>ИГРА ЗАВЕРШЕНА</h2>
+            <div class="results">
+                <div class="result-item">
+                    <span>Дистанция:</span>
+                    <span id="final-distance" class="result-value">0 м</span>
+                </div>
+                <div class="result-item">
+                    <span>Правильных слов:</span>
+                    <span id="words-count" class="result-value">0</span>
+                </div>
+                <div class="result-item">
+                    <span>Ошибок:</span>
+                    <span id="mistakes-count" class="result-value">0</span>
+                </div>
+            </div>
+            <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
+            <button id="menu-btn" class="btn btn-secondary">В МЕНЮ</button>
+        </div>
+    </div>
+
+    <script>
+        // Слова для игры
+        const wordList = {
+            "нав_ждение": "и",
+            "нас_комые": "е",
+            "недос_гаемый": "я",
+            "н_велла": "о",
+            "об_яние": "а",
+            "об_ятельный": "а",
+            "об_тать": "и",
+            "об_татель": "и",
+            "обн_ружить": "а",
+            "об_няние": "о",
+            "об_нятельный": "о",
+            "об_рона": "о",
+            "об_ронять": "о",
+            "од_леть": "о",
+            "оз_рной": "о",
+            "оз_рничать": "о",
+            "оз_рник": "о",
+            "оп_кун": "е",
+            "оп_кунский": "е",
+            "опт_мист": "и",
+            "опт_мистичный": "и",
+            "опт_мизм": "и",
+            "ор_нж_рея": "а,е",
+            "_рбита": "о",
+            "_рбитальный": "о",
+            "орг_низовать": "а",
+            "орг_низация": "а",
+            "ор_г_нальный": "и,и",
+            "ор_ентир": "и",
+            "ор_ентировать": "и",
+            "ор_ентироваться": "и",
+            "ор_ентация": "и",
+            "_рнамент": "о",
+            "ост_рожный": "о",
+            "ост_рожность": "о",
+            "оф_цер": "и",
+            "оф_церский": "и",
+            "ош_ломить": "е",
+            "ош_ломительный": "е",
+            "ош_ломлённый": "е"
+        };
+
+        // Игровые переменные
+        let canvas, ctx;
+        let gameActive = false;
+        let gamePaused = false;
+        let distance = 0;
+        let speed = 3;
+        let baseSpeed = 3;
+        let maxSpeed = 10;
+        let acceleration = 0.0001;
+        let lives = 3;
+        let score = 0;
+        let mistakes = 0;
+        let currentWord = '';
+        let currentAnswer = '';
+        let currentBlanks = [];
+        let answeredLetters = 0;
+        let snowflakes = [];
+        let player, snowpiles = [];
+        let buildings = [];
+        let lastSnowpileTime = 0;
+        let lastBuildingTime = 0;
+        let snowpileInterval = 2000;
+        let buildingInterval = 4000;
+
+        // Изображения - ВСЕ 12 ИЗОБРАЖЕНИЙ
+        const images = {
+            // Персонаж (5 изображений)
+            playerRun1: new Image(),
+            playerRun2: new Image(),
+            playerJump: new Image(),
+            playerHit: new Image(),
+            playerSad: new Image(),  // НОВОЕ: грустный мальчик
+            
+            // Препятствие (1 изображение)
+            snowpile: new Image(),
+            
+            // Фоны (3 изображения)
+            bgSky: new Image(),
+            bgMountains: new Image(),
+            bgGround: new Image(),
+            
+            // Здания (3 изображения)
+            building1: new Image(),  // НОВОЕ: школа
+            building2: new Image(),  // НОВОЕ: библиотека
+            building3: new Image()   // НОВОЕ: дом
+        };
+
+        // Состояния загрузки
+        let loadedImages = 0;
+        let totalImages = Object.keys(images).length;
+        let imagesLoaded = false;
+
+        // DOM элементы
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingProgress = document.getElementById('loading-progress');
+        const startScreen = document.getElementById('start-screen');
+        const gameUI = document.getElementById('game-ui');
+        const taskOverlay = document.getElementById('task-overlay');
+        const taskWordElement = document.getElementById('task-word');
+        const vowelButtonsContainer = document.getElementById('vowel-buttons');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const sadCharacterElement = document.getElementById('sad-character');
+        const distanceElement = document.getElementById('distance');
+        const finalDistanceElement = document.getElementById('final-distance');
+        const wordsCountElement = document.getElementById('words-count');
+        const mistakesCountElement = document.getElementById('mistakes-count');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const menuBtn = document.getElementById('menu-btn');
+
+        // Гласные для кнопок
+        const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
+
+        // Класс для зданий
+        class Building {
+            constructor(image, x) {
+                this.image = image;
+                this.x = x;
+                this.width = 200;
+                this.height = 300;
+                this.speed = speed * 0.3; // Медленнее персонажа для параллакса
+            }
+
+            update() {
+                if (gamePaused) return;
+                this.x -= this.speed;
+            }
+
+            draw() {
+                if (this.image.complete && this.image.naturalHeight !== 0) {
+                    ctx.drawImage(this.image, this.x, 350 - this.height + 50, this.width, this.height);
+                } else {
+                    // Fallback отрисовка здания
+                    ctx.fillStyle = '#475569';
+                    ctx.fillRect(this.x, 350 - this.height + 50, this.width, this.height);
+                    
+                    // Окна
+                    ctx.fillStyle = '#fbbf24';
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 2; j++) {
+                            ctx.fillRect(
+                                this.x + 30 + i * 50,
+                                350 - this.height + 100 + j * 60,
+                                30,
+                                40
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        // Класс для персонажа
+        class Player {
+            constructor() {
+                this.x = 100;
+                this.y = 250;
+                this.width = 60;
+                this.height = 100;
+                this.jumpHeight = 150;
+                this.jumpSpeed = 15;
+                this.gravity = 0.8;
+                this.isJumping = false;
+                this.jumpVelocity = 0;
+                this.groundY = 250;
+                this.runFrame = 0;
+                this.frameCounter = 0;
+                this.hitTime = 0;
+                this.isHit = false;
+            }
+
+            jump() {
+                if (!this.isJumping && !this.isHit && !gamePaused) {
+                    this.isJumping = true;
+                    this.jumpVelocity = -this.jumpSpeed;
+                    createJumpEffect(this.x + this.width/2, this.y + this.height);
+                }
+            }
+
+            hit() {
+                this.isHit = true;
+                this.hitTime = Date.now();
+            }
+
+            update() {
+                if (gamePaused) return;
+                
+                this.frameCounter++;
+                if (this.frameCounter > 10) {
+                    this.runFrame = this.runFrame === 0 ? 1 : 0;
+                    this.frameCounter = 0;
+                }
+
+                if (this.isHit) {
+                    if (Date.now() - this.hitTime > 1000) {
+                        this.isHit = false;
+                    }
+                    return;
+                }
+
+                if (this.isJumping) {
+                    this.y += this.jumpVelocity;
+                    this.jumpVelocity += this.gravity;
+                    
+                    if (this.y > this.groundY) {
+                        this.y = this.groundY;
+                        this.isJumping = false;
+                        createLandEffect(this.x + this.width/2, this.y + this.height);
+                    }
+                }
+            }
+
+            draw() {
+                if (!imagesLoaded) {
+                    this.drawFallback();
+                    return;
+                }
+
+                let img;
+                if (this.isHit) {
+                    img = images.playerHit;
+                } else if (this.isJumping) {
+                    img = images.playerJump;
+                } else {
+                    img = this.runFrame === 0 ? images.playerRun1 : images.playerRun2;
+                }
+
+                if (img.complete && img.naturalHeight !== 0) {
+                    ctx.drawImage(img, this.x, this.y, this.width, this.height);
+                } else {
+                    this.drawFallback();
+                }
+            }
+
+            drawFallback() {
+                // Fallback отрисовка персонажа
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Голова
+                ctx.fillStyle = '#fbbf24';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2, this.y + 25, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Тело
+                ctx.fillStyle = '#1e40af';
+                ctx.fillRect(this.x, this.y + 50, this.width, 50);
+                
+                // Ноги
+                ctx.fillStyle = '#1e293b';
+                const legOffset = Math.sin(Date.now() / 100) * 10;
+                ctx.fillRect(this.x + 15, this.y + 100, 10, 40 + legOffset);
+                ctx.fillRect(this.x + 35, this.y + 100, 10, 40 - legOffset);
+            }
+
+            getBounds() {
+                return {
+                    x: this.x + 15,
+                    y: this.y + 50,
+                    width: this.width - 30,
+                    height: this.height - 50
+                };
+            }
+        }
+
+        // Класс для сугроба
+        class Snowpile {
+            constructor(x) {
+                this.x = x;
+                this.width = 80;
+                this.height = 60;
+                this.passed = false;
+            }
+
+            update() {
+                if (gamePaused) return;
+                this.x -= speed;
+            }
+
+            draw() {
+                if (!imagesLoaded) {
+                    this.drawFallback();
+                    return;
+                }
+
+                if (images.snowpile.complete && images.snowpile.naturalHeight !== 0) {
+                    ctx.drawImage(images.snowpile, this.x, 310 - this.height, this.width, this.height);
+                } else {
+                    this.drawFallback();
+                }
+            }
+
+            drawFallback() {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.ellipse(this.x + this.width/2, 310 - this.height/2, this.width/2, this.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Блестки
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                for (let i = 0; i < 3; i++) {
+                    const sparkleX = this.x + 20 + i * 20;
+                    const sparkleY = 290 + Math.sin(Date.now()/1000 + i) * 5;
+                    ctx.beginPath();
+                    ctx.arc(sparkleX, sparkleY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            getBounds() {
+                return {
+                    x: this.x + 10,
+                    y: 310 - this.height,
+                    width: this.width - 20,
+                    height: this.height
+                };
+            }
+        }
+
+        // Загрузка ВСЕХ изображений
+        function loadImages() {
+            Object.keys(images).forEach(key => {
+                images[key].onload = imageLoaded;
+                images[key].onerror = function() {
+                    console.log(`Изображение ${key}.png не загружено, используется fallback`);
+                    imageLoaded();
+                };
+            });
+
+            // Загружаем ВСЕ 12 изображений
+            // Персонаж (5)
+            images.playerRun1.src = 'player_run1.png';
+            images.playerRun2.src = 'player_run2.png';
+            images.playerJump.src = 'player_jump.png';
+            images.playerHit.src = 'player_hit.png';
+            images.playerSad.src = 'player_sad.png';
+            
+            // Препятствие (1)
+            images.snowpile.src = 'snowpile.png';
+            
+            // Фоны (3)
+            images.bgSky.src = 'bg_sky.png';
+            images.bgMountains.src = 'bg_mountains.png';
+            images.bgGround.src = 'bg_ground.png';
+            
+            // Здания (3)
+            images.building1.src = 'building1.png';
+            images.building2.src = 'building2.png';
+            images.building3.src = 'building3.png';
+        }
+
+        function imageLoaded() {
+            loadedImages++;
+            loadingProgress.textContent = `${loadedImages}/${totalImages} изображений`;
+            
+            if (loadedImages === totalImages) {
+                imagesLoaded = true;
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    startScreen.classList.remove('hidden');
+                }, 800);
+            }
+        }
+
+        // Создаем эффекты
+        function createJumpEffect(x, y) {
+            for (let i = 0; i < 5; i++) {
+                snowflakes.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: Math.random() * -3 - 2,
+                    size: Math.random() * 3 + 2,
+                    life: 30,
+                    color: '#ffffff'
+                });
+            }
+        }
+
+        function createLandEffect(x, y) {
+            for (let i = 0; i < 8; i++) {
+                snowflakes.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: Math.random() * -2,
+                    size: Math.random() * 4 + 3,
+                    life: 40,
+                    color: '#e2e8f0'
+                });
+            }
+        }
+
+        function createSnowfall() {
+            snowflakes.push({
+                x: Math.random() * canvas.width,
+                y: 0,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: Math.random() * 2 + 1,
+                size: Math.random() * 4 + 2,
+                life: 200,
+                color: 'rgba(255, 255, 255, 0.7)'
+            });
+        }
+
+        // Инициализация игры
+        function init() {
+            canvas = document.getElementById('game-canvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.width = 900;
+            canvas.height = 500;
+            
+            player = new Player();
+            snowpiles = [];
+            buildings = [];
+            lastSnowpileTime = 0;
+            lastBuildingTime = 0;
+            snowpileInterval = 2000;
+            buildingInterval = 4000;
+            
+            createVowelButtons();
+            setupEventListeners();
+            
+            loadImages();
+            
+            // Запускаем снегопад
+            for (let i = 0; i < 50; i++) {
+                createSnowfall();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function createVowelButtons() {
+            vowelButtonsContainer.innerHTML = '';
+            vowels.forEach(vowel => {
+                const button = document.createElement('div');
+                button.className = 'vowel-btn no-select';
+                button.textContent = vowel;
+                button.onclick = () => handleVowelClick(vowel);
+                vowelButtonsContainer.appendChild(button);
+            });
+        }
+
+        function setupEventListeners() {
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', startGame);
+            menuBtn.addEventListener('click', () => {
+                gameOverScreen.classList.add('hidden');
+                startScreen.classList.remove('hidden');
+            });
+            
+            // Управление прыжком
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    if (gameActive && !gamePaused) {
+                        player.jump();
+                    } else if (startScreen.classList.contains('hidden')) {
+                        startGame();
+                    }
+                }
+            });
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (gameActive && !gamePaused) {
+                    player.jump();
+                }
+            });
+            
+            canvas.addEventListener('click', (e) => {
+                if (gameActive && !gamePaused) {
+                    player.jump();
+                }
+            });
+            
+            // Ввод букв с клавиатуры
+            document.addEventListener('keydown', (e) => {
+                if (gamePaused && !taskOverlay.classList.contains('hidden')) {
+                    const key = e.key.toUpperCase();
+                    if (vowels.includes(key)) {
+                        handleVowelClick(key);
+                    }
+                }
+            });
+        }
+
+        function startGame() {
+            gameActive = true;
+            gamePaused = false;
+            distance = 0;
+            speed = baseSpeed;
+            lives = 3;
+            score = 0;
+            mistakes = 0;
+            
+            player = new Player();
+            snowpiles = [];
+            buildings = [];
+            lastSnowpileTime = 0;
+            lastBuildingTime = 0;
+            snowpileInterval = 2000;
+            buildingInterval = 4000;
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            taskOverlay.classList.add('hidden');
+            gameUI.classList.remove('hidden');
+            
+            updateLivesDisplay();
+            updateDistanceDisplay();
+        }
+
+        function updateLivesDisplay() {
+            const lifeElements = document.querySelectorAll('.life');
+            lifeElements.forEach((life, index) => {
+                life.classList.toggle('lost', index >= lives);
+            });
+        }
+
+        function updateDistanceDisplay() {
+            distanceElement.textContent = Math.floor(distance);
+        }
+
+        function showTask() {
+            const words = Object.keys(wordList);
+            const randomWord = words[Math.floor(Math.random() * words.length)];
+            currentWord = randomWord;
+            currentAnswer = wordList[randomWord];
+            
+            player.hit();
+            
+            currentBlanks = [];
+            answeredLetters = 0;
+            const letters = currentWord.split('');
+            
+            taskWordElement.innerHTML = '';
+            letters.forEach((letter, index) => {
+                const span = document.createElement('span');
+                span.className = 'letter no-select';
+                
+                if (letter === '_') {
+                    span.classList.add('blank');
+                    span.textContent = '?';
+                    currentBlanks.push(index);
+                } else {
+                    span.textContent = letter.toUpperCase();
+                }
+                
+                taskWordElement.appendChild(span);
+            });
+            
+            // ПАУЗИМ ИГРУ и показываем окно поверх всего
+            gamePaused = true;
+            taskOverlay.classList.remove('hidden');
+        }
+
+        function handleVowelClick(vowel) {
+            if (answeredLetters >= currentBlanks.length) return;
+            
+            const blankIndex = currentBlanks[answeredLetters];
+            const answerParts = currentAnswer.split(',');
+            const correctLetter = answerParts[answeredLetters]?.toUpperCase();
+            
+            const letterElements = document.querySelectorAll('.letter');
+            const currentLetterElement = letterElements[blankIndex];
+            
+            if (vowel === correctLetter) {
+                // Правильный ответ
+                currentLetterElement.textContent = vowel;
+                currentLetterElement.classList.remove('blank');
+                currentLetterElement.classList.add('filled');
+                answeredLetters++;
+                
+                if (answeredLetters >= currentBlanks.length) {
+                    score++;
+                    setTimeout(() => {
+                        taskOverlay.classList.add('hidden');
+                        gamePaused = false; // ВОЗОБНОВЛЯЕМ ИГРУ
+                    }, 500);
+                }
+            } else {
+                // Неправильный ответ
+                mistakes++;
+                lives--;
+                updateLivesDisplay();
+                
+                // Анимация ошибки
+                document.body.style.backgroundColor = '#ef4444';
+                setTimeout(() => {
+                    document.body.style.backgroundColor = '';
+                }, 150);
+                
+                if (lives <= 0) {
+                    endGame();
+                } else {
+                    // Показываем правильную букву
+                    currentLetterElement.textContent = correctLetter;
+                    currentLetterElement.classList.remove('blank');
+                    currentLetterElement.style.color = '#10b981';
+                    
+                    setTimeout(() => {
+                        taskOverlay.classList.add('hidden');
+                        gamePaused = false; // ВОЗОБНОВЛЯЕМ ИГРУ
+                    }, 1000);
+                }
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            gamePaused = false;
+            taskOverlay.classList.add('hidden');
+            gameUI.classList.add('hidden');
+            
+            finalDistanceElement.textContent = Math.floor(distance) + ' м';
+            wordsCountElement.textContent = score;
+            mistakesCountElement.textContent = mistakes;
+            
+            // Показываем грустного мальчика
+            if (images.playerSad.complete && images.playerSad.naturalHeight !== 0) {
+                sadCharacterElement.style.backgroundImage = `url('player_sad.png')`;
+            }
+            
+            setTimeout(() => {
+                gameOverScreen.classList.remove('hidden');
+            }, 800);
+        }
+
+        // Основной игровой цикл
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawBackground();
+            
+            if (gameActive && !gamePaused) {
+                player.update();
+                
+                // Обновляем здания
+                buildings.forEach((building, index) => {
+                    building.update();
+                    if (building.x < -building.width) {
+                        buildings.splice(index, 1);
+                    }
+                });
+                
+                // Обновляем сугробы
+                snowpiles.forEach((snowpile, index) => {
+                    snowpile.update();
+                    
+                    // Проверяем столкновение
+                    if (!snowpile.passed && checkCollision(player.getBounds(), snowpile.getBounds())) {
+                        snowpile.passed = true;
+                        showTask();
+                    }
+                    
+                    // Удаляем сугробы за пределами экрана
+                    if (snowpile.x < -snowpile.width) {
+                        snowpiles.splice(index, 1);
+                    }
+                });
+                
+                // Генерируем новые здания
+                const currentTime = Date.now();
+                if (currentTime - lastBuildingTime > buildingInterval) {
+                    const buildingImages = [images.building1, images.building2, images.building3];
+                    const randomImage = buildingImages[Math.floor(Math.random() * buildingImages.length)];
+                    buildings.push(new Building(randomImage, canvas.width));
+                    lastBuildingTime = currentTime;
+                }
+                
+                // Генерируем новые сугробы
+                if (currentTime - lastSnowpileTime > snowpileInterval) {
+                    snowpiles.push(new Snowpile(canvas.width));
+                    lastSnowpileTime = currentTime;
+                    
+                    // Увеличиваем сложность
+                    snowpileInterval = Math.max(500, snowpileInterval * 0.95);
+                    speed = Math.min(maxSpeed, speed + acceleration * distance);
+                    
+                    // Обновляем скорость зданий
+                    buildings.forEach(building => {
+                        building.speed = speed * 0.3;
+                    });
+                }
+                
+                // Увеличиваем дистанцию
+                distance += speed / 10;
+                updateDistanceDisplay();
+            }
+            
+            // Рисуем здания (сзади персонажа)
+            buildings.forEach(building => building.draw());
+            
+            // Рисуем сугробы
+            snowpiles.forEach(snowpile => snowpile.draw());
+            
+            // Рисуем персонажа (спереди)
+            player.draw();
+            
+            // Обновляем и рисуем снежинки
+            updateSnowflakes();
+            drawSnowflakes();
+            
+            // Создаем новые снежинки для снегопада
+            if (Math.random() < 0.05) {
+                createSnowfall();
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawBackground() {
+            if (!imagesLoaded) {
+                drawFallbackBackground();
+                return;
+            }
+
+            // Рисуем фоновые изображения
+            if (images.bgSky.complete) {
+                // Небо с параллаксом
+                const skyOffset = (distance / 50) % canvas.width;
+                ctx.drawImage(images.bgSky, -skyOffset, 0, canvas.width, canvas.height);
+                ctx.drawImage(images.bgSky, canvas.width - skyOffset, 0, canvas.width, canvas.height);
+            }
+            
+            // Горы с параллаксом
+            if (images.bgMountains.complete) {
+                const mountainsOffset = (distance / 30) % canvas.width;
+                ctx.drawImage(images.bgMountains, -mountainsOffset, 200, canvas.width, 300);
+                ctx.drawImage(images.bgMountains, canvas.width - mountainsOffset, 200, canvas.width, 300);
+            }
+            
+            // Земля с параллаксом
+            if (images.bgGround.complete) {
+                const groundOffset = (distance / 10) % canvas.width;
+                ctx.drawImage(images.bgGround, -groundOffset, 350, canvas.width, 150);
+                ctx.drawImage(images.bgGround, canvas.width - groundOffset, 350, canvas.width, 150);
+            } else {
+                drawFallbackBackground();
+            }
+        }
+
+        function drawFallbackBackground() {
+            // Fallback фон если изображения не загрузились
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0f172a');
+            gradient.addColorStop(0.5, '#1e293b');
+            gradient.addColorStop(1, '#334155');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Луна
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.beginPath();
+            ctx.arc(canvas.width - 100, 100, 40, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Звезды
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 37) % canvas.width;
+                const y = (i * 23) % 200;
+                const size = Math.random() * 2 + 1;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Горы
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.moveTo(0, 400);
+            for (let x = 0; x <= canvas.width; x += 100) {
+                const y = 350 + Math.sin(x / 100) * 30 + Math.cos(x / 50) * 20;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, 400);
+            ctx.lineTo(0, 400);
+            ctx.fill();
+            
+            // Снежная земля
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 350, canvas.width, 150);
+        }
+
+        function updateSnowflakes() {
+            for (let i = snowflakes.length - 1; i >= 0; i--) {
+                const flake = snowflakes[i];
+                flake.x += flake.vx;
+                flake.y += flake.vy;
+                flake.life--;
+                
+                if (flake.life <= 0 || flake.y > canvas.height) {
+                    snowflakes.splice(i, 1);
+                }
+            }
+        }
+
+        function drawSnowflakes() {
+            snowflakes.forEach(flake => {
+                ctx.fillStyle = flake.color;
+                ctx.beginPath();
+                ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        // Запускаем игру при загрузке страницы
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
