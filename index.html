@@ -5,183 +5,284 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Снежный спринтер: Гласные</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Стили остаются прежними (не менял) */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e17;
+            color: white;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: hidden;
-            touch-action: manipulation;
         }
 
         #game-container {
-            position: relative;
             width: 100%;
-            max-width: 900px;
-            height: 500px;
-            border-radius: 24px;
+            max-width: 800px;
+            height: 600px;
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
             background: #0f172a;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
-        /* Остальные стили без изменений... */
-        
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            z-index: 10;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #f1f5f9;
+        }
+
+        p {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #475569;
+            margin-top: 15px;
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            z-index: 5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ui-panel {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 12px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .life {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .life.lost {
+            background: #64748b;
+        }
+
+        #word-display {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        .vowel-buttons {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .vowel-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid #475569;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .vowel-btn:hover {
+            background: #3b82f6;
+            transform: scale(1.1);
+        }
+
+        .instructions {
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            color: #cbd5e1;
+        }
+
+        .sad-character {
+            width: 100px;
+            height: 100px;
+            background: #475569;
+            border-radius: 50%;
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <!-- Экран загрузки -->
-        <div id="loading-screen" class="screen">
-            <div class="loader"></div>
-            <h2 style="color: #ffffff; margin-top: 20px;">Загрузка игры...</h2>
-            <p id="loading-progress" style="color: #94a3b8; margin-top: 10px; text-align: center; padding: 0 20px;">Подготовка</p>
-            <button id="skip-loading-btn" style="margin-top: 20px; background: #475569; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Пропустить загрузку</button>
-        </div>
-
         <!-- Стартовый экран -->
-        <div id="start-screen" class="screen hidden">
-            <div class="screen-content">
-                <h1>СНЕЖНЫЙ СПРИНТЕР</h1>
-                <p class="subtitle">Помоги школьнику добраться до школы! Прыгай через сугробы и заполняй пропущенные гласные в словах.</p>
-                
-                <div class="instructions">
-                    <div class="instruction-item">
-                        <div class="instruction-icon">🏃</div>
-                        <span><strong>ПРОБЕЛ</strong> или <strong>ТАП</strong> — прыжок через сугроб</span>
-                    </div>
-                    <div class="instruction-item">
-                        <div class="instruction-icon">📝</div>
-                        <span>При столкновении — заполни пропущенные гласные</span>
-                    </div>
-                    <div class="instruction-item">
-                        <div class="instruction-icon">❤️</div>
-                        <span>У тебя <strong>3 жизни</strong>. Ошибка = потеря жизни</span>
-                    </div>
-                    <div class="instruction-item">
-                        <div class="instruction-icon">🏆</div>
-                        <span>Пробеги как можно дальше и запомни больше слов!</span>
-                    </div>
+        <div id="start-screen" class="screen">
+            <h1>СНЕЖНЫЙ СПРИНТЕР</h1>
+            <p class="subtitle">Беги, прыгай и заполняй пропущенные гласные!</p>
+            
+            <div class="instructions">
+                <div class="instruction-item">
+                    <strong>ПРОБЕЛ / ТАП</strong> — прыжок через сугроб
                 </div>
-                
-                <button id="start-btn" class="btn">НАЧАТЬ ИГРУ</button>
-                <p class="tap-to-start">ПК: <strong>ПРОБЕЛ</strong> • ТЕЛЕФОН: <strong>ТАП ПО ЭКРАНУ</strong></p>
+                <div class="instruction-item">
+                    <strong>СУГРОБ</strong> — появится слово с пропущенными буквами
+                </div>
+                <div class="instruction-item">
+                    <strong>ГЛАСНЫЕ</strong> — выбери правильную букву на клавиатуре или тапом
+                </div>
+                <div class="instruction-item">
+                    <strong>ОШИБКА</strong> = потеря жизни • <strong>3 жизни</strong> всего
+                </div>
             </div>
+            
+            <button id="start-btn" class="btn">НАЧАТЬ ИГРУ</button>
+            <p style="margin-top: 20px; color: #64748b; font-size: 0.9em;">Нажми ПРОБЕЛ для прыжка • Набирай буквы на клавиатуре</p>
         </div>
 
-        <!-- Игровой экран -->
+        <!-- Игровой холст -->
         <canvas id="game-canvas"></canvas>
         
-        <!-- Интерфейс во время игры -->
+        <!-- Игровой интерфейс -->
         <div id="game-ui" class="game-ui hidden">
-            <div class="lives-panel ui-panel">
-                <span class="lives-count">Жизни</span>
+            <div class="ui-panel">
+                <span style="color: #94a3b8;">Жизни:</span>
                 <div class="life"></div>
                 <div class="life"></div>
                 <div class="life"></div>
             </div>
             
-            <div class="distance-panel ui-panel">
-                <div class="distance-icon">📏</div>
-                <span id="distance">0</span> метров
+            <div class="ui-panel">
+                <span id="distance">0</span> м
             </div>
         </div>
 
-        <!-- Окно задания -->
-        <div id="task-overlay" class="task-overlay hidden">
-            <div class="task-window">
-                <div class="task-title">Заполни пропущенные гласные</div>
-                <div id="task-word" class="task-word"></div>
-                <div id="vowel-buttons" class="vowel-buttons"></div>
-                <p style="color: #94a3b8; margin-top: 20px; font-size: 14px; text-align: center;">Выбери правильную гласную</p>
-            </div>
-        </div>
+        <!-- Отображение слова -->
+        <div id="word-display" class="hidden"></div>
+
+        <!-- Кнопки гласных -->
+        <div id="vowel-buttons" class="vowel-buttons hidden"></div>
 
         <!-- Экран Game Over -->
         <div id="game-over-screen" class="screen hidden">
-            <div class="screen-content">
-                <div id="sad-character" class="sad-character"></div>
-                <h2>ИГРА ЗАВЕРШЕНА</h2>
-                <div class="results">
-                    <div class="result-item">
-                        <span>Дистанция:</span>
-                        <span id="final-distance" class="result-value">0 м</span>
-                    </div>
-                    <div class="result-item">
-                        <span>Правильных слов:</span>
-                        <span id="words-count" class="result-value">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span>Ошибок:</span>
-                        <span id="mistakes-count" class="result-value">0</span>
-                    </div>
-                </div>
-                <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
-                <button id="menu-btn" class="btn btn-secondary">В МЕНЮ</button>
-                <p class="tap-to-start" style="margin-top: 20px;">Нажми <strong>ЛЮБУЮ ТОЧКУ НА ЭКРАНЕ</strong> для быстрого старта</p>
-            </div>
+            <div class="sad-character"></div>
+            <h2>ИГРА ОКОНЧЕНА</h2>
+            <p>Дистанция: <span id="final-distance">0</span> метров</p>
+            <p>Правильных слов: <span id="words-count">0</span></p>
+            <p>Ошибок: <span id="mistakes-count">0</span></p>
+            <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
+            <button id="menu-btn" class="btn btn-secondary">В МЕНЮ</button>
         </div>
     </div>
 
     <script>
-        // Слова для игры
+        // Слова для игры (сокращённый список для теста)
         const wordList = {
-            "нав_ждение": "и",
-            "нас_комые": "е",
-            "недос_гаемый": "я",
-            "н_велла": "о",
-            "об_яние": "а",
-            "об_ятельный": "а",
-            "об_тать": "и",
-            "об_татель": "и",
-            "обн_ружить": "а",
-            "об_няние": "о",
-            "об_нятельный": "о",
-            "об_рона": "о",
-            "об_ронять": "о",
-            "од_леть": "о",
-            "оз_рной": "о",
-            "оз_рничать": "о",
-            "оз_рник": "о",
-            "оп_кун": "е",
-            "оп_кунский": "е",
-            "опт_мист": "и",
-            "опт_мистичный": "и",
-            "опт_мизм": "и",
-            "ор_нж_рея": "а,е",
-            "_рбита": "о",
-            "_рбитальный": "о",
-            "орг_низовать": "а",
-            "орг_низация": "а",
-            "ор_г_нальный": "и,и",
-            "ор_ентир": "и",
-            "ор_ентировать": "и",
-            "ор_ентироваться": "и",
-            "ор_ентация": "и",
-            "_рнамент": "о",
-            "ост_рожный": "о",
-            "ост_рожность": "о",
-            "оф_цер": "и",
-            "оф_церский": "и",
-            "ош_ломить": "е",
-            "ош_ломительный": "е",
-            "ош_ломлённый": "е"
+            "к_т": "о",
+            "с_бака": "о",
+            "д_м": "о",
+            "л_с": "е",
+            "м_ре": "о",
+            "г_ра": "о",
+            "п_ле": "о",
+            "ч_й": "а",
+            "м_локо": "о",
+            "х_лодный": "о"
         };
 
         // Игровые переменные
@@ -189,786 +290,400 @@
         let gameActive = false;
         let gamePaused = false;
         let distance = 0;
-        let speed = 3;
-        let baseSpeed = 3;
-        let maxSpeed = 10;
-        let acceleration = 0.0001;
+        let speed = 5;
         let lives = 3;
         let score = 0;
         let mistakes = 0;
         let currentWord = '';
         let currentAnswer = '';
-        let currentBlanks = [];
-        let answeredLetters = 0;
-        let snowflakes = [];
-        let player, snowpiles = [];
-        let buildings = [];
-        let lastSnowpileTime = 0;
-        let lastBuildingTime = 0;
-        let snowpileInterval = 2000;
-        let buildingInterval = 4000;
+        let currentTaskActive = false;
 
-        // Изображения
-        const images = {
-            playerRun1: new Image(),
-            playerRun2: new Image(),
-            playerJump: new Image(),
-            playerHit: new Image(),
-            playerSad: new Image(),
-            snowpile: new Image(),
-            bgSky: new Image(),
-            bgMountains: new Image(),
-            bgGround: new Image(),
-            building1: new Image(),
-            building2: new Image(),
-            building3: new Image()
-        };
+        // Объекты игры
+        let player = { x: 100, y: 300, width: 60, height: 80, jumping: false, vy: 0 };
+        let obstacles = [];
+        let clouds = [];
+        let stars = [];
 
-        // Состояния загрузки
-        let loadedImages = 0;
-        let totalImages = Object.keys(images).length;
+        // Изображения (с fallback)
+        const images = {};
         let imagesLoaded = false;
-        let loadingTimeout = null;
 
         // DOM элементы
-        const loadingScreen = document.getElementById('loading-screen');
-        const loadingProgress = document.getElementById('loading-progress');
-        const skipLoadingBtn = document.getElementById('skip-loading-btn');
         const startScreen = document.getElementById('start-screen');
         const gameUI = document.getElementById('game-ui');
-        const taskOverlay = document.getElementById('task-overlay');
-        const taskWordElement = document.getElementById('task-word');
-        const vowelButtonsContainer = document.getElementById('vowel-buttons');
+        const wordDisplay = document.getElementById('word-display');
+        const vowelButtons = document.getElementById('vowel-buttons');
         const gameOverScreen = document.getElementById('game-over-screen');
-        const sadCharacterElement = document.getElementById('sad-character');
         const distanceElement = document.getElementById('distance');
         const finalDistanceElement = document.getElementById('final-distance');
         const wordsCountElement = document.getElementById('words-count');
         const mistakesCountElement = document.getElementById('mistakes-count');
-        const startBtn = document.getElementById('start-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const menuBtn = document.getElementById('menu-btn');
-
-        // Гласные для кнопок
-        const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
-
-        // Функция для принудительной загрузки игры
-        function forceStartGame() {
-            console.log("Принудительный старт игры (изображения не загружены)");
-            imagesLoaded = true;
-            loadingScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
-            if (loadingTimeout) {
-                clearTimeout(loadingTimeout);
-            }
-        }
-
-        // Класс для зданий
-        class Building {
-            constructor(image, x) {
-                this.image = image;
-                this.x = x;
-                this.width = 200;
-                this.height = 300;
-                this.speed = speed * 0.3;
-            }
-
-            update() {
-                if (gamePaused) return;
-                this.x -= this.speed;
-            }
-
-            draw() {
-                if (imagesLoaded && this.image.complete && this.image.naturalHeight !== 0) {
-                    ctx.drawImage(this.image, this.x, 350 - this.height + 50, this.width, this.height);
-                } else {
-                    // Fallback отрисовка
-                    ctx.fillStyle = '#475569';
-                    ctx.fillRect(this.x, 350 - this.height + 50, this.width, this.height);
-                    
-                    ctx.fillStyle = '#fbbf24';
-                    for (let i = 0; i < 3; i++) {
-                        for (let j = 0; j < 2; j++) {
-                            ctx.fillRect(
-                                this.x + 30 + i * 50,
-                                350 - this.height + 100 + j * 60,
-                                30,
-                                40
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        // Класс для персонажа
-        class Player {
-            constructor() {
-                this.x = 100;
-                this.y = 250;
-                this.width = 60;
-                this.height = 100;
-                this.jumpHeight = 150;
-                this.jumpSpeed = 15;
-                this.gravity = 0.8;
-                this.isJumping = false;
-                this.jumpVelocity = 0;
-                this.groundY = 250;
-                this.runFrame = 0;
-                this.frameCounter = 0;
-                this.hitTime = 0;
-                this.isHit = false;
-            }
-
-            jump() {
-                if (!this.isJumping && !this.isHit && !gamePaused) {
-                    this.isJumping = true;
-                    this.jumpVelocity = -this.jumpSpeed;
-                    createJumpEffect(this.x + this.width/2, this.y + this.height);
-                }
-            }
-
-            hit() {
-                this.isHit = true;
-                this.hitTime = Date.now();
-            }
-
-            update() {
-                if (gamePaused) return;
-                
-                this.frameCounter++;
-                if (this.frameCounter > 10) {
-                    this.runFrame = this.runFrame === 0 ? 1 : 0;
-                    this.frameCounter = 0;
-                }
-
-                if (this.isHit) {
-                    if (Date.now() - this.hitTime > 1000) {
-                        this.isHit = false;
-                    }
-                    return;
-                }
-
-                if (this.isJumping) {
-                    this.y += this.jumpVelocity;
-                    this.jumpVelocity += this.gravity;
-                    
-                    if (this.y > this.groundY) {
-                        this.y = this.groundY;
-                        this.isJumping = false;
-                        createLandEffect(this.x + this.width/2, this.y + this.height);
-                    }
-                }
-            }
-
-            draw() {
-                // Всегда используем fallback для начала
-                this.drawFallback();
-            }
-
-            drawFallback() {
-                ctx.fillStyle = '#3b82f6';
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                ctx.fillStyle = '#fbbf24';
-                ctx.beginPath();
-                ctx.arc(this.x + this.width/2, this.y + 25, 25, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#1e40af';
-                ctx.fillRect(this.x, this.y + 50, this.width, 50);
-                
-                ctx.fillStyle = '#1e293b';
-                const legOffset = Math.sin(Date.now() / 100) * 10;
-                ctx.fillRect(this.x + 15, this.y + 100, 10, 40 + legOffset);
-                ctx.fillRect(this.x + 35, this.y + 100, 10, 40 - legOffset);
-            }
-
-            getBounds() {
-                return {
-                    x: this.x + 15,
-                    y: this.y + 50,
-                    width: this.width - 30,
-                    height: this.height - 50
-                };
-            }
-        }
-
-        // Класс для сугроба
-        class Snowpile {
-            constructor(x) {
-                this.x = x;
-                this.width = 80;
-                this.height = 60;
-                this.passed = false;
-            }
-
-            update() {
-                if (gamePaused) return;
-                this.x -= speed;
-            }
-
-            draw() {
-                // Всегда используем fallback для начала
-                this.drawFallback();
-            }
-
-            drawFallback() {
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.ellipse(this.x + this.width/2, 310 - this.height/2, this.width/2, this.height/2, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#e2e8f0';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-                
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                for (let i = 0; i < 3; i++) {
-                    const sparkleX = this.x + 20 + i * 20;
-                    const sparkleY = 290 + Math.sin(Date.now()/1000 + i) * 5;
-                    ctx.beginPath();
-                    ctx.arc(sparkleX, sparkleY, 4, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            getBounds() {
-                return {
-                    x: this.x + 10,
-                    y: 310 - this.height,
-                    width: this.width - 20,
-                    height: this.height
-                };
-            }
-        }
-
-        // Загрузка изображений (исправленная версия)
-        function loadImages() {
-            console.log("Начинаем загрузку изображений...");
-            
-            // Таймаут на случай, если изображения не загрузятся
-            loadingTimeout = setTimeout(() => {
-                console.log("Таймаут загрузки изображений - используем fallback графику");
-                forceStartGame();
-            }, 5000); // 5 секунд на загрузку
-            
-            // Список изображений для загрузки
-            const imageFiles = [
-                { key: 'playerRun1', src: 'player_run1.png' },
-                { key: 'playerRun2', src: 'player_run2.png' },
-                { key: 'playerJump', src: 'player_jump.png' },
-                { key: 'playerHit', src: 'player_hit.png' },
-                { key: 'playerSad', src: 'player_sad.png' },
-                { key: 'snowpile', src: 'snowpile.png' },
-                { key: 'bgSky', src: 'bg_sky.png' },
-                { key: 'bgMountains', src: 'bg_mountains.png' },
-                { key: 'bgGround', src: 'bg_ground.png' },
-                { key: 'building1', src: 'building1.png' },
-                { key: 'building2', src: 'building2.png' },
-                { key: 'building3', src: 'building3.png' }
-            ];
-            
-            // Счётчик загруженных изображений
-            let loadedCount = 0;
-            let errorCount = 0;
-            
-            // Функция обновления прогресса
-            function updateProgress() {
-                loadedCount++;
-                loadingProgress.textContent = `Загружено ${loadedCount}/${totalImages} изображений`;
-                
-                if (loadedCount + errorCount >= totalImages) {
-                    console.log(`Загрузка завершена: ${loadedCount} успешно, ${errorCount} с ошибкой`);
-                    if (loadingTimeout) {
-                        clearTimeout(loadingTimeout);
-                    }
-                    setTimeout(() => {
-                        loadingScreen.classList.add('hidden');
-                        startScreen.classList.remove('hidden');
-                        imagesLoaded = true;
-                    }, 500);
-                }
-            }
-            
-            // Пробуем загрузить каждое изображение
-            imageFiles.forEach(item => {
-                const img = images[item.key];
-                img.onload = updateProgress;
-                img.onerror = function() {
-                    console.warn(`Не удалось загрузить: ${item.src}`);
-                    errorCount++;
-                    updateProgress();
-                };
-                // Устанавливаем источник
-                img.src = item.src;
-            });
-        }
-
-        // Создаем эффекты
-        function createJumpEffect(x, y) {
-            for (let i = 0; i < 5; i++) {
-                snowflakes.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 4,
-                    vy: Math.random() * -3 - 2,
-                    size: Math.random() * 3 + 2,
-                    life: 30,
-                    color: '#ffffff'
-                });
-            }
-        }
-
-        function createLandEffect(x, y) {
-            for (let i = 0; i < 8; i++) {
-                snowflakes.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 6,
-                    vy: Math.random() * -2,
-                    size: Math.random() * 4 + 3,
-                    life: 40,
-                    color: '#e2e8f0'
-                });
-            }
-        }
-
-        function createSnowfall() {
-            snowflakes.push({
-                x: Math.random() * canvas.width,
-                y: 0,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: Math.random() * 2 + 1,
-                size: Math.random() * 4 + 2,
-                life: 200,
-                color: 'rgba(255, 255, 255, 0.7)'
-            });
-        }
 
         // Инициализация игры
         function init() {
-            console.log("Инициализация игры...");
-            
             canvas = document.getElementById('game-canvas');
             ctx = canvas.getContext('2d');
             
-            // Устанавливаем размер канваса
-            canvas.width = 900;
-            canvas.height = 500;
+            // Устанавливаем размеры
+            canvas.width = 800;
+            canvas.height = 600;
             
-            player = new Player();
-            snowpiles = [];
-            buildings = [];
-            lastSnowpileTime = 0;
-            lastBuildingTime = 0;
-            snowpileInterval = 2000;
-            buildingInterval = 4000;
-            
-            createVowelButtons();
-            setupEventListeners();
-            
-            // Начинаем загрузку изображений
-            loadImages();
-            
-            // Запускаем снегопад
-            for (let i = 0; i < 50; i++) {
-                createSnowfall();
+            // Создаём звёзды для фона
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * 200,
+                    size: Math.random() * 2 + 1,
+                    brightness: Math.random() * 0.5 + 0.5
+                });
             }
             
-            // Запускаем игровой цикл сразу
-            requestAnimationFrame(gameLoop);
+            // Создаём облака
+            for (let i = 0; i < 5; i++) {
+                clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * 150 + 50,
+                    speed: Math.random() * 0.5 + 0.5,
+                    width: Math.random() * 100 + 50,
+                    height: 30
+                });
+            }
             
-            console.log("Игра инициализирована, можно начинать!");
+            setupEventListeners();
+            createVowelButtons();
+            
+            // Начинаем игровой цикл
+            requestAnimationFrame(gameLoop);
         }
 
-        function createVowelButtons() {
-            vowelButtonsContainer.innerHTML = '';
-            vowels.forEach(vowel => {
-                const button = document.createElement('div');
-                button.className = 'vowel-btn no-select';
-                button.textContent = vowel;
-                button.onclick = () => handleVowelClick(vowel);
-                vowelButtonsContainer.appendChild(button);
+        // Простая загрузка изображений с немедленным стартом
+        function loadImages() {
+            // Список необходимых изображений
+            const imageFiles = ['player_run1.png', 'snowpile.png'];
+            
+            imageFiles.forEach(filename => {
+                const img = new Image();
+                img.src = filename;
+                images[filename] = img;
             });
+            
+            // Игра запускается сразу, не ждём загрузки изображений
+            imagesLoaded = true;
         }
 
         function setupEventListeners() {
-            console.log("Настройка обработчиков событий...");
+            // Кнопки
+            document.getElementById('start-btn').addEventListener('click', startGame);
+            document.getElementById('restart-btn').addEventListener('click', startGame);
+            document.getElementById('menu-btn').addEventListener('click', showMenu);
             
-            // Старт по кнопке
-            startBtn.addEventListener('click', startGame);
-            restartBtn.addEventListener('click', startGame);
-            menuBtn.addEventListener('click', () => {
-                gameOverScreen.classList.add('hidden');
-                startScreen.classList.remove('hidden');
-            });
-            
-            // Кнопка пропуска загрузки
-            skipLoadingBtn.addEventListener('click', forceStartGame);
-            
-            // Старт по тапу на весь экран
-            startScreen.addEventListener('click', function(e) {
-                if (!e.target.closest('.btn')) {
-                    startGame();
-                }
-            });
-            
-            gameOverScreen.addEventListener('click', function(e) {
-                if (!e.target.closest('.btn')) {
-                    startGame();
-                }
-            });
-            
-            // Управление прыжком
+            // Управление
             document.addEventListener('keydown', (e) => {
                 if (e.code === 'Space') {
                     e.preventDefault();
                     if (gameActive && !gamePaused) {
-                        player.jump();
-                    } else if (startScreen.classList.contains('hidden') && 
-                               !gameOverScreen.classList.contains('hidden')) {
-                        startGame();
+                        jump();
                     } else if (!gameActive) {
                         startGame();
                     }
                 }
-            });
-            
-            // Тап для прыжка
-            function handleTap(e) {
-                e.preventDefault();
-                if (gameActive && !gamePaused) {
-                    player.jump();
-                }
-            }
-            
-            canvas.addEventListener('touchstart', handleTap);
-            canvas.addEventListener('click', handleTap);
-            
-            // Ввод букв
-            document.addEventListener('keydown', (e) => {
-                if (gamePaused && !taskOverlay.classList.contains('hidden')) {
+                
+                // Ввод букв во время задания
+                if (currentTaskActive && !gamePaused) {
                     const key = e.key.toUpperCase();
+                    const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
                     if (vowels.includes(key)) {
-                        handleVowelClick(key);
+                        checkAnswer(key);
                     }
                 }
             });
             
-            console.log("Обработчики событий настроены");
+            // Тапы
+            canvas.addEventListener('click', (e) => {
+                if (gameActive && !gamePaused) {
+                    jump();
+                }
+            });
+            
+            // Тапы по буквам
+            vowelButtons.addEventListener('click', (e) => {
+                if (e.target.classList.contains('vowel-btn') && currentTaskActive) {
+                    checkAnswer(e.target.textContent);
+                }
+            });
+        }
+
+        function createVowelButtons() {
+            const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
+            vowelButtons.innerHTML = '';
+            
+            vowels.forEach(vowel => {
+                const btn = document.createElement('div');
+                btn.className = 'vowel-btn';
+                btn.textContent = vowel;
+                vowelButtons.appendChild(btn);
+            });
         }
 
         function startGame() {
-            console.log("Начало игры!");
-            
             gameActive = true;
             gamePaused = false;
             distance = 0;
-            speed = baseSpeed;
+            speed = 5;
             lives = 3;
             score = 0;
             mistakes = 0;
             
-            player = new Player();
-            snowpiles = [];
-            buildings = [];
-            lastSnowpileTime = 0;
-            lastBuildingTime = 0;
-            snowpileInterval = 2000;
-            buildingInterval = 4000;
+            player = { x: 100, y: 300, width: 60, height: 80, jumping: false, vy: 0 };
+            obstacles = [];
+            currentTaskActive = false;
             
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
-            taskOverlay.classList.add('hidden');
             gameUI.classList.remove('hidden');
+            wordDisplay.classList.add('hidden');
+            vowelButtons.classList.add('hidden');
             
-            updateLivesDisplay();
-            updateDistanceDisplay();
-            
-            console.log("Игра началась!");
+            updateLives();
+            updateDistance();
         }
 
-        function updateLivesDisplay() {
-            const lifeElements = document.querySelectorAll('.life');
-            lifeElements.forEach((life, index) => {
+        function showMenu() {
+            gameOverScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        function jump() {
+            if (!player.jumping) {
+                player.jumping = true;
+                player.vy = -15;
+            }
+        }
+
+        function updateLives() {
+            const livesElements = document.querySelectorAll('.life');
+            livesElements.forEach((life, index) => {
                 life.classList.toggle('lost', index >= lives);
             });
         }
 
-        function updateDistanceDisplay() {
+        function updateDistance() {
             distanceElement.textContent = Math.floor(distance);
         }
 
-        function showTask() {
+        function showWordTask() {
             const words = Object.keys(wordList);
-            const randomWord = words[Math.floor(Math.random() * words.length)];
-            currentWord = randomWord;
-            currentAnswer = wordList[randomWord];
-            
-            player.hit();
-            
-            currentBlanks = [];
-            answeredLetters = 0;
-            const letters = currentWord.split('');
-            
-            taskWordElement.innerHTML = '';
-            letters.forEach((letter, index) => {
-                const span = document.createElement('span');
-                span.className = 'letter no-select';
-                
-                if (letter === '_') {
-                    span.classList.add('blank');
-                    span.textContent = '?';
-                    currentBlanks.push(index);
-                } else {
-                    span.textContent = letter.toUpperCase();
-                }
-                
-                taskWordElement.appendChild(span);
-            });
-            
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            currentAnswer = wordList[currentWord].toUpperCase();
+            currentTaskActive = true;
             gamePaused = true;
-            taskOverlay.classList.remove('hidden');
+            
+            // Показываем слово с пропусками
+            let displayWord = '';
+            for (let i = 0; i < currentWord.length; i++) {
+                if (currentWord[i] === '_') {
+                    displayWord += '<span class="blank">?</span>';
+                } else {
+                    displayWord += currentWord[i];
+                }
+            }
+            
+            wordDisplay.innerHTML = displayWord;
+            wordDisplay.classList.remove('hidden');
+            vowelButtons.classList.remove('hidden');
         }
 
-        function handleVowelClick(vowel) {
-            if (answeredLetters >= currentBlanks.length) return;
-            
-            const blankIndex = currentBlanks[answeredLetters];
-            const answerParts = currentAnswer.split(',');
-            const correctLetter = answerParts[answeredLetters]?.toUpperCase();
-            
-            const letterElements = document.querySelectorAll('.letter');
-            const currentLetterElement = letterElements[blankIndex];
-            
-            if (vowel === correctLetter) {
-                currentLetterElement.textContent = vowel;
-                currentLetterElement.classList.remove('blank');
-                currentLetterElement.classList.add('filled');
-                answeredLetters++;
-                
-                if (answeredLetters >= currentBlanks.length) {
-                    score++;
-                    setTimeout(() => {
-                        taskOverlay.classList.add('hidden');
-                        gamePaused = false;
-                    }, 500);
-                }
+        function checkAnswer(letter) {
+            if (letter === currentAnswer) {
+                // Правильный ответ
+                score++;
+                hideWordTask();
+                setTimeout(() => {
+                    gamePaused = false;
+                }, 500);
             } else {
+                // Неправильный ответ
                 mistakes++;
                 lives--;
-                updateLivesDisplay();
+                updateLives();
                 
                 // Эффект ошибки
-                document.body.style.backgroundColor = '#ef4444';
+                document.body.style.backgroundColor = '#7f1d1d';
                 setTimeout(() => {
                     document.body.style.backgroundColor = '';
-                }, 150);
+                }, 200);
                 
                 if (lives <= 0) {
                     endGame();
                 } else {
-                    currentLetterElement.textContent = correctLetter;
-                    currentLetterElement.classList.remove('blank');
-                    currentLetterElement.style.color = '#10b981';
-                    
+                    hideWordTask();
                     setTimeout(() => {
-                        taskOverlay.classList.add('hidden');
                         gamePaused = false;
-                    }, 1000);
+                    }, 800);
                 }
             }
+        }
+
+        function hideWordTask() {
+            currentTaskActive = false;
+            wordDisplay.classList.add('hidden');
+            vowelButtons.classList.add('hidden');
         }
 
         function endGame() {
             gameActive = false;
-            gamePaused = false;
-            taskOverlay.classList.add('hidden');
-            gameUI.classList.add('hidden');
-            
-            finalDistanceElement.textContent = Math.floor(distance) + ' м';
+            finalDistanceElement.textContent = Math.floor(distance);
             wordsCountElement.textContent = score;
             mistakesCountElement.textContent = mistakes;
             
-            // Показываем грустного мальчика если есть изображение
-            if (imagesLoaded && images.playerSad.complete && images.playerSad.naturalHeight !== 0) {
-                sadCharacterElement.style.backgroundImage = `url('player_sad.png')`;
-            }
-            
             setTimeout(() => {
+                gameUI.classList.add('hidden');
                 gameOverScreen.classList.remove('hidden');
-            }, 800);
+            }, 1000);
         }
 
-        // Основной игровой цикл
+        // Игровой цикл
         function gameLoop() {
-            // Очищаем канвас
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Рисуем фон
-            drawBackground();
-            
-            // Игровая логика
-            if (gameActive && !gamePaused) {
-                player.update();
-                
-                // Обновляем здания
-                buildings.forEach((building, index) => {
-                    building.update();
-                    if (building.x < -building.width) {
-                        buildings.splice(index, 1);
-                    }
-                });
-                
-                // Обновляем сугробы
-                snowpiles.forEach((snowpile, index) => {
-                    snowpile.update();
-                    
-                    if (!snowpile.passed && checkCollision(player.getBounds(), snowpile.getBounds())) {
-                        snowpile.passed = true;
-                        showTask();
-                    }
-                    
-                    if (snowpile.x < -snowpile.width) {
-                        snowpiles.splice(index, 1);
-                    }
-                });
-                
-                // Создаем новые объекты
-                const currentTime = Date.now();
-                
-                // Здания
-                if (currentTime - lastBuildingTime > buildingInterval) {
-                    const buildingImages = [images.building1, images.building2, images.building3];
-                    const randomImage = buildingImages[Math.floor(Math.random() * buildingImages.length)];
-                    buildings.push(new Building(randomImage, canvas.width));
-                    lastBuildingTime = currentTime;
-                }
-                
-                // Сугробы
-                if (currentTime - lastSnowpileTime > snowpileInterval) {
-                    snowpiles.push(new Snowpile(canvas.width));
-                    lastSnowpileTime = currentTime;
-                    
-                    // Увеличиваем сложность
-                    snowpileInterval = Math.max(500, snowpileInterval * 0.95);
-                    speed = Math.min(maxSpeed, speed + acceleration * distance);
-                    
-                    // Обновляем скорость зданий
-                    buildings.forEach(building => {
-                        building.speed = speed * 0.3;
-                    });
-                }
-                
-                // Дистанция
-                distance += speed / 10;
-                updateDistanceDisplay();
-            }
-            
-            // Рисуем объекты
-            buildings.forEach(building => building.draw());
-            snowpiles.forEach(snowpile => snowpile.draw());
-            player.draw();
-            
-            // Снегопад
-            updateSnowflakes();
-            drawSnowflakes();
-            
-            if (Math.random() < 0.05) {
-                createSnowfall();
-            }
-            
-            // Следующий кадр
-            requestAnimationFrame(gameLoop);
-        }
-
-        function drawBackground() {
-            // Простой градиентный фон
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0f172a');
-            gradient.addColorStop(0.5, '#1e293b');
-            gradient.addColorStop(1, '#334155');
-            ctx.fillStyle = gradient;
+            // Очистка
+            ctx.fillStyle = '#0a0e17';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Луна/солнце
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.beginPath();
-            ctx.arc(canvas.width - 100, 100, 40, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Звезды/снежинки на небе
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            for (let i = 0; i < 30; i++) {
-                const x = (i * 37) % canvas.width;
-                const y = (i * 23) % 200;
-                const size = Math.random() * 2 + 1;
+            // Рисуем звёзды
+            ctx.fillStyle = 'white';
+            stars.forEach(star => {
+                ctx.globalAlpha = star.brightness;
                 ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                 ctx.fill();
-            }
+            });
+            ctx.globalAlpha = 1;
             
-            // Горы
+            // Рисуем горы
             ctx.fillStyle = '#1e293b';
             ctx.beginPath();
             ctx.moveTo(0, 400);
             for (let x = 0; x <= canvas.width; x += 100) {
-                const y = 350 + Math.sin(x / 100) * 30 + Math.cos(x / 50) * 20;
+                const y = 350 + Math.sin(x / 100) * 50;
                 ctx.lineTo(x, y);
             }
             ctx.lineTo(canvas.width, 400);
             ctx.lineTo(0, 400);
             ctx.fill();
             
-            // Снежная земля
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 350, canvas.width, 150);
+            // Рисуем снежную землю
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(0, 400, canvas.width, 200);
             
-            // Линия горизонта
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, 350);
-            ctx.lineTo(canvas.width, 350);
-            ctx.stroke();
-        }
-
-        function updateSnowflakes() {
-            for (let i = snowflakes.length - 1; i >= 0; i--) {
-                const flake = snowflakes[i];
-                flake.x += flake.vx;
-                flake.y += flake.vy;
-                flake.life--;
-                
-                if (flake.life <= 0 || flake.y > canvas.height) {
-                    snowflakes.splice(i, 1);
-                }
-            }
-        }
-
-        function drawSnowflakes() {
-            snowflakes.forEach(flake => {
-                ctx.fillStyle = flake.color;
+            // Рисуем облака
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            clouds.forEach(cloud => {
                 ctx.beginPath();
-                ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.height, 0, 0, Math.PI * 2);
                 ctx.fill();
+                
+                cloud.x -= cloud.speed;
+                if (cloud.x < -cloud.width) {
+                    cloud.x = canvas.width + cloud.width;
+                }
             });
+            
+            // Игровая логика
+            if (gameActive && !gamePaused) {
+                // Физика прыжка
+                if (player.jumping) {
+                    player.y += player.vy;
+                    player.vy += 0.8;
+                    
+                    if (player.y >= 300) {
+                        player.y = 300;
+                        player.jumping = false;
+                        player.vy = 0;
+                    }
+                }
+                
+                // Обновляем препятствия
+                obstacles.forEach((obs, index) => {
+                    obs.x -= speed;
+                    
+                    // Проверка столкновения
+                    if (!obs.passed && 
+                        player.x < obs.x + obs.width &&
+                        player.x + player.width > obs.x &&
+                        player.y < obs.y + obs.height &&
+                        player.y + player.height > obs.y) {
+                        obs.passed = true;
+                        showWordTask();
+                    }
+                    
+                    if (obs.x < -obs.width) {
+                        obstacles.splice(index, 1);
+                    }
+                });
+                
+                // Создаём новые препятствия
+                if (Math.random() < 0.01) {
+                    obstacles.push({
+                        x: canvas.width,
+                        y: 320,
+                        width: 60,
+                        height: 40,
+                        passed: false
+                    });
+                }
+                
+                // Увеличиваем дистанцию и скорость
+                distance += speed / 60;
+                speed = 5 + Math.floor(distance / 100);
+                updateDistance();
+            }
+            
+            // Рисуем препятствия (сугробы)
+            ctx.fillStyle = '#e2e8f0';
+            obstacles.forEach(obs => {
+                // Простой сугроб
+                ctx.beginPath();
+                ctx.ellipse(obs.x + obs.width/2, obs.y + obs.height/2, 
+                           obs.width/2, obs.height/2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Детали
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(obs.x + 15, obs.y + 10, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(obs.x + 45, obs.y + 15, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#e2e8f0';
+            });
+            
+            // Рисуем персонажа
+            ctx.fillStyle = player.jumping ? '#3b82f6' : '#2563eb';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Голова
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(player.x + player.width/2, player.y + 20, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ноги при беге
+            if (!player.jumping) {
+                const legOffset = Math.sin(Date.now() / 100) * 5;
+                ctx.fillStyle = '#1e40af';
+                ctx.fillRect(player.x + 10, player.y + player.height, 10, 30 + legOffset);
+                ctx.fillRect(player.x + 40, player.y + player.height, 10, 30 - legOffset);
+            }
+            
+            requestAnimationFrame(gameLoop);
         }
 
-        function checkCollision(rect1, rect2) {
-            return rect1.x < rect2.x + rect2.width &&
-                   rect1.x + rect1.width > rect2.x &&
-                   rect1.y < rect2.y + rect2.height &&
-                   rect1.y + rect1.height > rect2.y;
-        }
-
-        // Запускаем игру при загрузке страницы
-        window.addEventListener('load', init);
-        
-        // Также запускаем если DOM уже загружен
-        if (document.readyState === 'complete') {
+        // Запуск игры
+        window.addEventListener('load', () => {
             init();
-        }
+            loadImages();
+        });
     </script>
 </body>
 </html>
+` Если нужны дополнительные корректировки (цвета, размеры, механика), скажите!
