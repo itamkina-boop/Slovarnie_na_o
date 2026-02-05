@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -337,11 +338,45 @@
                 height: 100vh;
             }
         }
+
+        /* Стиль для состояния загрузки */
+        #loadingScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 200;
+            border-radius: 20px;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #42a5f5;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <div id="startScreen">
+        <div id="loadingScreen">
+            <div class="loader"></div>
+            <p>Загрузка игры...</p>
+        </div>
+        
+        <div id="startScreen" style="display:none;">
             <h1>❄️ Зимняя грамматика ❄️</h1>
             <p class="instruction">Помоги персонажу пробежать через зимний город!<br>Прыгай через сугробы (Space/Тап) и заполняй пропуски в словах.</p>
             <p class="instruction">Используй гласные буквы для заполнения пропусков.<br>У тебя есть 3 жизни. Будь внимателен!</p>
@@ -382,6 +417,7 @@
         // Инициализация переменных
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const loadingScreen = document.getElementById('loadingScreen');
         const startScreen = document.getElementById('startScreen');
         const gameScreen = document.getElementById('gameScreen');
         const gameOverScreen = document.getElementById('gameOverScreen');
@@ -398,6 +434,61 @@
         // Настройка холста
         canvas.width = canvas.parentElement.clientWidth;
         canvas.height = canvas.parentElement.clientHeight;
+
+        // Загрузка изображений
+        const images = {
+            player_run1: new Image(),
+            player_run2: new Image(),
+            player_jump: new Image(),
+            player_hit: new Image(),
+            player_sad: new Image(),
+            snowpile: new Image()
+        };
+
+        // Пути к изображениям (из вашего списка файлов)
+        images.player_run1.src = 'player_run1.png';
+        images.player_run2.src = 'player_run2.png';
+        images.player_jump.src = 'player_jump.png';
+        images.player_hit.src = 'player_hit.png';
+        images.player_sad.src = 'player_sad.png';
+        images.snowpile.src = 'snowpile.png';
+
+        let imagesLoaded = 0;
+        const totalImages = Object.keys(images).length;
+
+        // Проверка загрузки всех изображений
+        Object.values(images).forEach(img => {
+            img.onload = () => {
+                imagesLoaded++;
+                if (imagesLoaded === totalImages) {
+                    // Все изображения загружены
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        startScreen.style.display = 'flex';
+                    }, 500);
+                }
+            };
+            img.onerror = () => {
+                console.error(`Не удалось загрузить изображение: ${img.src}`);
+                imagesLoaded++;
+                if (imagesLoaded === totalImages) {
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        startScreen.style.display = 'flex';
+                        showMessage('Некоторые изображения не загружены', '#f44336');
+                    }, 500);
+                }
+            };
+        });
+
+        // Если изображения не загружаются, используем заглушки через 3 секунды
+        setTimeout(() => {
+            if (imagesLoaded < totalImages) {
+                loadingScreen.style.display = 'none';
+                startScreen.style.display = 'flex';
+                showMessage('Игра загружена в упрощенном режиме', '#ff9800');
+            }
+        }, 3000);
 
         // Слова для игры
         const wordList = [
@@ -468,7 +559,8 @@
             animationFrame: 0,
             groundY: canvas.height * 0.7,
             clouds: [],
-            buildings: []
+            buildings: [],
+            useImages: false // Флаг использования изображений
         };
 
         // Класс игрока
@@ -507,8 +599,41 @@
             draw() {
                 ctx.save();
                 
-                // Тело персонажа (силуэт)
-                ctx.fillStyle = '#1565c0';
+                // Определяем какое изображение использовать
+                let imgToDraw;
+                switch(this.state) {
+                    case 'jump':
+                        imgToDraw = images.player_jump;
+                        break;
+                    case 'hit':
+                        imgToDraw = images.player_hit;
+                        break;
+                    case 'sad':
+                        imgToDraw = images.player_sad;
+                        break;
+                    case 'run':
+                    default:
+                        imgToDraw = this.runFrame === 0 ? images.player_run1 : images.player_run2;
+                        break;
+                }
+                
+                // Проверяем загружено ли изображение
+                if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
+                    // Используем изображение
+                    ctx.drawImage(imgToDraw, this.x, this.y, this.width, this.height);
+                } else {
+                    // Запасной вариант - рисуем примитивную графику
+                    this.drawFallback();
+                }
+                
+                ctx.restore();
+            }
+
+            drawFallback() {
+                // Резервная отрисовка если изображения не загрузились
+                ctx.fillStyle = this.state === 'hit' ? '#9e9e9e' : 
+                                this.state === 'sad' ? '#78909c' : 
+                                this.state === 'jump' ? '#42a5f5' : '#1565c0';
                 ctx.fillRect(this.x, this.y + 20, this.width, this.height - 40);
                 
                 // Голова
@@ -518,34 +643,18 @@
                 ctx.fill();
                 
                 // Шапка
-                ctx.fillStyle = '#d32f2f';
+                ctx.fillStyle = this.state === 'sad' ? '#455a64' : '#d32f2f';
                 ctx.beginPath();
                 ctx.arc(this.x + this.width/2, this.y + 10, 30, 0, Math.PI * 2);
                 ctx.fill();
                 
-                ctx.fillStyle = '#ff5722';
-                ctx.fillRect(this.x + this.width/2 - 15, this.y + 10, 30, 15);
-                
-                // Ноги для анимации бега
+                // Выражение лица
                 ctx.fillStyle = '#0d47a1';
-                if (this.state === 'run') {
-                    const legOffset = this.runFrame === 0 ? 10 : -10;
-                    ctx.fillRect(this.x + 20, this.y + this.height - 20, 15, 30 + legOffset);
-                    ctx.fillRect(this.x + 45, this.y + this.height - 20, 15, 30 - legOffset);
-                } else {
-                    ctx.fillRect(this.x + 20, this.y + this.height - 20, 15, 30);
-                    ctx.fillRect(this.x + 45, this.y + this.height - 20, 15, 30);
-                }
-                
-                // Руки
-                ctx.fillStyle = '#1565c0';
-                if (game.isJumping) {
-                    ctx.fillRect(this.x - 10, this.y + 40, 15, 40);
-                    ctx.fillRect(this.x + this.width - 5, this.y + 40, 15, 40);
-                } else {
-                    const armOffset = this.runFrame === 0 ? 5 : -5;
-                    ctx.fillRect(this.x - 5, this.y + 40 + armOffset, 15, 40);
-                    ctx.fillRect(this.x + this.width - 10, this.y + 40 - armOffset, 15, 40);
+                if (this.state === 'sad') {
+                    // Грустный рот
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width/2, this.y + 25, 10, 0, Math.PI);
+                    ctx.stroke();
                 }
                 
                 // Глаза
@@ -560,8 +669,6 @@
                 ctx.arc(this.x + this.width/2 - 8, this.y + 15, 3, 0, Math.PI * 2);
                 ctx.arc(this.x + this.width/2 + 8, this.y + 15, 3, 0, Math.PI * 2);
                 ctx.fill();
-                
-                ctx.restore();
             }
 
             jump() {
@@ -573,7 +680,7 @@
             }
         }
 
-        // Класс препятствия
+        // Класс препятствия (сугроб)
         class Obstacle {
             constructor() {
                 this.width = 60;
@@ -590,6 +697,17 @@
             }
 
             draw() {
+                // Проверяем загружено ли изображение сугроба
+                if (images.snowpile.complete && images.snowpile.naturalWidth > 0) {
+                    // Используем изображение
+                    ctx.drawImage(images.snowpile, this.x, this.y, this.width, this.height);
+                } else {
+                    // Запасной вариант - рисуем сугроб
+                    this.drawFallback();
+                }
+            }
+
+            drawFallback() {
                 // Сугроб
                 ctx.save();
                 ctx.fillStyle = '#e1f5fe';
@@ -771,6 +889,7 @@
         function showWordChallenge(wordObj) {
             game.currentWord = wordObj;
             game.playerAnswer = [];
+            player.state = 'hit'; // Персонаж в сугробе
             
             // Разделяем слово на части
             const parts = wordObj.word.split('.');
@@ -827,9 +946,12 @@
                 showMessage('Правильно! ✓', '#388e3c');
                 wordChallenge.style.display = 'none';
                 game.running = true;
+                player.state = 'run'; // Возвращаем к бегу
                 
                 // Удаляем препятствие, которое вызвало вопрос
-                game.obstacles.shift();
+                if (game.obstacles.length > 0) {
+                    game.obstacles.shift();
+                }
                 
                 // Увеличиваем счет
                 game.score += 100;
@@ -838,13 +960,19 @@
                 updateLives();
                 
                 if(game.lives <= 0) {
-                    gameOver();
-                    showMessage(`Правильно: ${game.currentWord.full}`, '#f44336');
+                    player.state = 'sad'; // Грустный персонаж
+                    setTimeout(() => {
+                        gameOver();
+                        showMessage(`Правильно: ${game.currentWord.full}`, '#f44336');
+                    }, 500);
                 } else {
                     showMessage(`Ошибка! Правильно: ${game.currentWord.full}`, '#f44336');
                     wordChallenge.style.display = 'none';
                     game.running = true;
-                    game.obstacles.shift();
+                    player.state = 'run'; // Возвращаем к бегу
+                    if (game.obstacles.length > 0) {
+                        game.obstacles.shift();
+                    }
                 }
             }
         }
@@ -885,7 +1013,6 @@
                 // Проверка столкновения
                 if (obstacle.collidesWith(player) && !game.isJumping) {
                     showWordChallenge(obstacle.word);
-                    player.state = 'hit';
                 }
                 
                 // Удаляем препятствия за экраном
@@ -1009,7 +1136,8 @@
                 animationFrame: 0,
                 groundY: canvas.height * 0.7,
                 clouds: game.clouds,
-                buildings: game.buildings
+                buildings: game.buildings,
+                useImages: imagesLoaded === totalImages
             };
             
             player.state = 'run';
@@ -1030,7 +1158,6 @@
             document.getElementById('finalScore').textContent = `Вы пробежали: ${Math.floor(game.distance)} метров`;
             gameScreen.style.display = 'none';
             gameOverScreen.style.display = 'flex';
-            player.state = 'sad';
         }
 
         // Обработчики событий
@@ -1065,6 +1192,15 @@
 
         // Инициализация
         updateLives();
+        
+        // Если изображения не загрузились, показываем стартовый экран через 1 секунду
+        setTimeout(() => {
+            if (loadingScreen.style.display !== 'none') {
+                loadingScreen.style.display = 'none';
+                startScreen.style.display = 'flex';
+                showMessage('Игра загружена. Изображения будут использованы при наличии.', '#ff9800');
+            }
+        }, 1000);
     </script>
 </body>
 </html>
