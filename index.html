@@ -1,3 +1,6 @@
+Исправлю эти проблемы! Вот обновлённый код с исправлениями:
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -25,6 +28,7 @@
             align-items: center;
             padding: 20px;
             overflow: hidden;
+            touch-action: manipulation;
         }
 
         #game-container {
@@ -52,6 +56,17 @@
             text-align: center;
             z-index: 1000;
             transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screen-content {
+            max-width: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
 
         .hidden {
@@ -63,8 +78,8 @@
         h1 {
             font-family: 'Montserrat', sans-serif;
             color: #ffffff;
-            font-size: 52px;
-            margin-bottom: 24px;
+            font-size: 42px;
+            margin-bottom: 20px;
             font-weight: 900;
             letter-spacing: -0.5px;
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -72,25 +87,33 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            line-height: 1.2;
+            text-align: center;
+            padding: 0 20px;
         }
 
         h2 {
             font-family: 'Montserrat', sans-serif;
             color: #ffffff;
-            font-size: 40px;
-            margin-bottom: 32px;
+            font-size: 36px;
+            margin-bottom: 24px;
             font-weight: 800;
             letter-spacing: -0.5px;
+            line-height: 1.2;
+            text-align: center;
+            padding: 0 20px;
         }
 
         .subtitle {
             color: #cbd5e1;
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 48px;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 30px;
             max-width: 600px;
             font-weight: 400;
             opacity: 0.9;
+            text-align: center;
+            padding: 0 20px;
         }
 
         /* Кнопки */
@@ -98,18 +121,22 @@
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             border: none;
-            padding: 18px 48px;
-            font-size: 18px;
+            padding: 16px 36px;
+            font-size: 16px;
             font-weight: 600;
             border-radius: 12px;
             cursor: pointer;
-            margin: 12px;
+            margin: 8px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: 'Inter', sans-serif;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             position: relative;
             overflow: hidden;
+            min-width: 200px;
+            max-width: 300px;
+            width: auto;
+            display: inline-block;
         }
 
         .btn::before {
@@ -171,7 +198,7 @@
             background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(20px);
             border-radius: 16px;
-            padding: 16px 24px;
+            padding: 12px 20px;
             box-shadow: 
                 0 10px 30px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -180,42 +207,43 @@
             color: #ffffff;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            font-size: 16px;
         }
 
         .distance-panel {
-            top: 28px;
-            right: 28px;
-            font-size: 22px;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
         }
 
         .distance-icon {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         /* Жизни */
         .lives-panel {
-            top: 28px;
-            left: 28px;
+            top: 20px;
+            left: 20px;
         }
 
         .lives-count {
-            font-size: 16px;
+            font-size: 14px;
             color: #94a3b8;
             font-weight: 500;
             margin-right: 4px;
         }
 
         .life {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             border-radius: 8px;
             position: relative;
@@ -235,7 +263,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 16px;
+            font-size: 14px;
         }
 
         /* Окно задания */
@@ -252,19 +280,21 @@
             align-items: center;
             z-index: 10000;
             pointer-events: auto;
+            padding: 20px;
         }
 
         .task-window {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 24px;
-            padding: 48px;
+            padding: 32px;
             box-shadow: 
                 0 32px 64px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            min-width: 500px;
+            min-width: 300px;
             max-width: 90vw;
+            width: 100%;
             animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -281,8 +311,8 @@
 
         .task-title {
             color: #e2e8f0;
-            font-size: 18px;
-            margin-bottom: 32px;
+            font-size: 16px;
+            margin-bottom: 24px;
             font-weight: 500;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -291,31 +321,34 @@
 
         .task-word {
             font-family: 'Montserrat', sans-serif;
-            font-size: 56px;
-            margin: 32px 0;
+            font-size: 42px;
+            margin: 24px 0;
             color: #ffffff;
             font-weight: 700;
-            letter-spacing: 4px;
-            min-height: 80px;
+            letter-spacing: 3px;
+            min-height: 60px;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
+            padding: 0 10px;
+            overflow-x: auto;
         }
 
         .letter {
             display: inline-block;
-            min-width: 60px;
+            min-width: 45px;
             text-align: center;
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
         }
 
         .letter.blank {
             color: #fbbf24;
             border-bottom: 3px solid #f59e0b;
-            margin: 0 4px;
+            margin: 0 3px;
             animation: pulse 2s infinite;
         }
 
@@ -339,19 +372,20 @@
         .vowel-buttons {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            margin-top: 32px;
-            max-width: 500px;
+            gap: 10px;
+            margin-top: 24px;
+            max-width: 400px;
+            width: 100%;
         }
 
         .vowel-btn {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             border-radius: 12px;
             background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
             border: 2px solid rgba(255, 255, 255, 0.1);
             font-family: 'Montserrat', sans-serif;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #ffffff;
             cursor: pointer;
@@ -377,23 +411,25 @@
         .results {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-radius: 24px;
-            padding: 40px;
-            margin: 32px 0;
+            padding: 30px;
+            margin: 24px 0;
             box-shadow: 
                 0 20px 40px rgba(0, 0, 0, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            min-width: 400px;
+            min-width: 300px;
+            max-width: 90vw;
+            width: 100%;
         }
 
         .result-item {
-            font-size: 18px;
-            margin: 20px 0;
+            font-size: 16px;
+            margin: 16px 0;
             color: #cbd5e1;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -405,14 +441,14 @@
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
             color: #60a5fa;
-            font-size: 24px;
+            font-size: 20px;
         }
 
         /* Грустный мальчик на экране Game Over */
         .sad-character {
-            width: 200px;
-            height: 200px;
-            margin-bottom: 30px;
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -420,33 +456,35 @@
 
         /* Инструкции */
         .instructions {
-            margin-top: 40px;
+            margin-top: 30px;
             background: rgba(255, 255, 255, 0.05);
-            padding: 32px;
+            padding: 24px;
             border-radius: 20px;
-            max-width: 600px;
+            max-width: 500px;
+            width: 100%;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .instruction-item {
             display: flex;
-            align-items: center;
-            margin: 16px 0;
-            font-size: 16px;
+            align-items: flex-start;
+            margin: 12px 0;
+            font-size: 14px;
             color: #e2e8f0;
             text-align: left;
+            line-height: 1.4;
         }
 
         .instruction-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             border-radius: 10px;
-            margin-right: 16px;
+            margin-right: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             color: white;
             flex-shrink: 0;
             font-weight: 600;
@@ -480,130 +518,215 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Адаптивность */
+        /* Сообщение о тапе для старта */
+        .tap-to-start {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 16px;
+            text-align: center;
+            padding: 0 20px;
+            line-height: 1.4;
+        }
+
+        .tap-to-start strong {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        /* Адаптивность - мобильные устройства */
         @media (max-width: 768px) {
             #game-container {
                 height: 500px;
                 max-width: 100%;
+                margin: 10px;
+            }
+
+            body {
+                padding: 10px;
+            }
+
+            .screen {
+                padding: 20px 15px;
+                justify-content: flex-start;
+                padding-top: 40px;
+            }
+
+            .screen-content {
+                padding: 10px;
+                overflow-y: auto;
+                max-height: 100%;
             }
 
             h1 {
-                font-size: 36px;
-            }
-
-            h2 {
                 font-size: 32px;
-            }
-
-            .subtitle {
-                font-size: 16px;
-                padding: 0 20px;
-            }
-
-            .btn {
-                padding: 16px 32px;
-                font-size: 16px;
-            }
-
-            .distance-panel,
-            .lives-panel {
-                top: 20px;
-                padding: 12px 20px;
-                font-size: 18px;
-            }
-
-            .distance-panel {
-                right: 20px;
-            }
-
-            .lives-panel {
-                left: 20px;
-            }
-
-            .task-window {
-                min-width: 90vw;
-                padding: 32px 24px;
-            }
-
-            .task-word {
-                font-size: 42px;
-                letter-spacing: 2px;
-            }
-
-            .letter {
-                min-width: 45px;
-            }
-
-            .vowel-buttons {
-                grid-template-columns: repeat(5, 1fr);
-                gap: 10px;
-            }
-
-            .vowel-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-
-            .results {
-                min-width: 90vw;
-                padding: 24px;
-            }
-
-            .result-item {
-                font-size: 16px;
-            }
-
-            .result-value {
-                font-size: 20px;
-            }
-
-            .sad-character {
-                width: 150px;
-                height: 150px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 32px;
+                margin-bottom: 16px;
+                padding: 0 10px;
             }
 
             h2 {
                 font-size: 28px;
+                margin-bottom: 20px;
+                padding: 0 10px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+                margin-bottom: 24px;
+                padding: 0 15px;
+                line-height: 1.4;
+            }
+
+            .btn {
+                padding: 14px 28px;
+                font-size: 14px;
+                margin: 6px;
+                min-width: 180px;
+                max-width: 250px;
+            }
+
+            .distance-panel,
+            .lives-panel {
+                top: 15px;
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .distance-panel {
+                right: 15px;
+            }
+
+            .lives-panel {
+                left: 15px;
+            }
+
+            .life {
+                width: 24px;
+                height: 24px;
+            }
+
+            .life::before {
+                font-size: 12px;
+            }
+
+            .task-window {
+                padding: 24px 20px;
+                min-width: 90vw;
             }
 
             .task-word {
-                font-size: 36px;
-                letter-spacing: 1px;
+                font-size: 32px;
+                letter-spacing: 2px;
+                padding: 0 5px;
             }
 
             .letter {
-                min-width: 36px;
+                min-width: 35px;
             }
 
             .vowel-buttons {
                 grid-template-columns: repeat(5, 1fr);
                 gap: 8px;
+                max-width: 320px;
             }
 
             .vowel-btn {
-                width: 44px;
-                height: 44px;
+                width: 42px;
+                height: 42px;
                 font-size: 18px;
             }
 
-            .instructions {
+            .results {
                 padding: 20px;
+                margin: 20px 0;
+                min-width: 90vw;
             }
 
-            .instruction-item {
+            .result-item {
                 font-size: 14px;
+                margin: 12px 0;
+            }
+
+            .result-value {
+                font-size: 18px;
             }
 
             .sad-character {
                 width: 120px;
                 height: 120px;
+                margin-bottom: 16px;
+            }
+
+            .instructions {
+                padding: 20px;
+                margin-top: 20px;
+                max-width: 90vw;
+            }
+
+            .instruction-item {
+                font-size: 13px;
+                margin: 10px 0;
+            }
+
+            .instruction-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+                margin-right: 10px;
+            }
+
+            .tap-to-start {
+                font-size: 13px;
+                margin-top: 12px;
+                padding: 0 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .task-word {
+                font-size: 28px;
+                letter-spacing: 1px;
+            }
+
+            .letter {
+                min-width: 30px;
+            }
+
+            .vowel-buttons {
+                gap: 6px;
+                max-width: 280px;
+            }
+
+            .vowel-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
+
+            .instructions {
+                padding: 16px;
+            }
+
+            .instruction-item {
+                font-size: 12px;
+            }
+
+            .sad-character {
+                width: 100px;
+                height: 100px;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 13px;
+                min-width: 160px;
             }
         }
 
@@ -614,6 +737,37 @@
             -ms-user-select: none;
             user-select: none;
         }
+
+        /* Прокрутка на мобильных */
+        @media (max-height: 600px) {
+            .screen {
+                padding-top: 60px;
+                justify-content: flex-start;
+            }
+            
+            .screen-content {
+                padding-bottom: 40px;
+            }
+            
+            h1 {
+                font-size: 28px;
+                margin-bottom: 12px;
+            }
+            
+            .subtitle {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+            
+            .instructions {
+                margin-top: 15px;
+                padding: 15px;
+            }
+            
+            .instruction-item {
+                margin: 8px 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -622,35 +776,37 @@
         <div id="loading-screen" class="screen">
             <div class="loader"></div>
             <h2 style="color: #ffffff; margin-top: 20px;">Загрузка...</h2>
-            <p id="loading-progress" style="color: #94a3b8; margin-top: 10px;">0/12 изображений</p>
+            <p id="loading-progress" style="color: #94a3b8; margin-top: 10px; text-align: center; padding: 0 20px;">0/12 изображений</p>
         </div>
 
         <!-- Стартовый экран -->
         <div id="start-screen" class="screen hidden">
-            <h1>СНЕЖНЫЙ СПРИНТЕР</h1>
-            <p class="subtitle">Помоги школьнику добраться до школы! Прыгай через сугробы и заполняй пропущенные гласные в словах.</p>
-            
-            <div class="instructions">
-                <div class="instruction-item">
-                    <div class="instruction-icon">🏃</div>
-                    <span><strong>ПРОБЕЛ</strong> или <strong>ТАП</strong> — прыжок через сугроб</span>
+            <div class="screen-content">
+                <h1>СНЕЖНЫЙ СПРИНТЕР</h1>
+                <p class="subtitle">Помоги школьнику добраться до школы! Прыгай через сугробы и заполняй пропущенные гласные в словах.</p>
+                
+                <div class="instructions">
+                    <div class="instruction-item">
+                        <div class="instruction-icon">🏃</div>
+                        <span><strong>ПРОБЕЛ</strong> или <strong>ТАП</strong> — прыжок через сугроб</span>
+                    </div>
+                    <div class="instruction-item">
+                        <div class="instruction-icon">📝</div>
+                        <span>При столкновении — заполни пропущенные гласные</span>
+                    </div>
+                    <div class="instruction-item">
+                        <div class="instruction-icon">❤️</div>
+                        <span>У тебя <strong>3 жизни</strong>. Ошибка = потеря жизни</span>
+                    </div>
+                    <div class="instruction-item">
+                        <div class="instruction-icon">🏆</div>
+                        <span>Пробеги как можно дальше и запомни больше слов!</span>
+                    </div>
                 </div>
-                <div class="instruction-item">
-                    <div class="instruction-icon">📝</div>
-                    <span>При столкновении — заполни пропущенные гласные</span>
-                </div>
-                <div class="instruction-item">
-                    <div class="instruction-icon">❤️</div>
-                    <span>У тебя <strong>3 жизни</strong>. Ошибка = потеря жизни</span>
-                </div>
-                <div class="instruction-item">
-                    <div class="instruction-icon">🏆</div>
-                    <span>Пробеги как можно дальше и запомни больше слов!</span>
-                </div>
+                
+                <button id="start-btn" class="btn">НАЧАТЬ ИГРУ</button>
+                <p class="tap-to-start">ПК: <strong>ПРОБЕЛ</strong> • ТЕЛЕФОН: <strong>ТАП ПО ЭКРАНУ</strong></p>
             </div>
-            
-            <button id="start-btn" class="btn">НАЧАТЬ ИГРУ</button>
-            <p style="margin-top: 24px; color: #94a3b8; font-size: 14px; letter-spacing: 0.5px;">ПК: ПРОБЕЛ • ТЕЛЕФОН: ТАП</p>
         </div>
 
         <!-- Игровой экран -->
@@ -677,30 +833,33 @@
                 <div class="task-title">Заполни пропущенные гласные</div>
                 <div id="task-word" class="task-word"></div>
                 <div id="vowel-buttons" class="vowel-buttons"></div>
-                <p style="color: #94a3b8; margin-top: 24px; font-size: 14px;">Выбери правильную гласную</p>
+                <p style="color: #94a3b8; margin-top: 20px; font-size: 14px; text-align: center;">Выбери правильную гласную</p>
             </div>
         </div>
 
         <!-- Экран Game Over -->
         <div id="game-over-screen" class="screen hidden">
-            <div id="sad-character" class="sad-character"></div>
-            <h2>ИГРА ЗАВЕРШЕНА</h2>
-            <div class="results">
-                <div class="result-item">
-                    <span>Дистанция:</span>
-                    <span id="final-distance" class="result-value">0 м</span>
+            <div class="screen-content">
+                <div id="sad-character" class="sad-character"></div>
+                <h2>ИГРА ЗАВЕРШЕНА</h2>
+                <div class="results">
+                    <div class="result-item">
+                        <span>Дистанция:</span>
+                        <span id="final-distance" class="result-value">0 м</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Правильных слов:</span>
+                        <span id="words-count" class="result-value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Ошибок:</span>
+                        <span id="mistakes-count" class="result-value">0</span>
+                    </div>
                 </div>
-                <div class="result-item">
-                    <span>Правильных слов:</span>
-                    <span id="words-count" class="result-value">0</span>
-                </div>
-                <div class="result-item">
-                    <span>Ошибок:</span>
-                    <span id="mistakes-count" class="result-value">0</span>
-                </div>
+                <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
+                <button id="menu-btn" class="btn btn-secondary">В МЕНЮ</button>
+                <p class="tap-to-start" style="margin-top: 20px;">Нажми <strong>ЛЮБУЮ ТОЧКУ НА ЭКРАНЕ</strong> для быстрого старта</p>
             </div>
-            <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
-            <button id="menu-btn" class="btn btn-secondary">В МЕНЮ</button>
         </div>
     </div>
 
@@ -773,27 +932,20 @@
         let snowpileInterval = 2000;
         let buildingInterval = 4000;
 
-        // Изображения - ВСЕ 12 ИЗОБРАЖЕНИЙ
+        // Изображения
         const images = {
-            // Персонаж (5 изображений)
             playerRun1: new Image(),
             playerRun2: new Image(),
             playerJump: new Image(),
             playerHit: new Image(),
-            playerSad: new Image(),  // НОВОЕ: грустный мальчик
-            
-            // Препятствие (1 изображение)
+            playerSad: new Image(),
             snowpile: new Image(),
-            
-            // Фоны (3 изображения)
             bgSky: new Image(),
             bgMountains: new Image(),
             bgGround: new Image(),
-            
-            // Здания (3 изображения)
-            building1: new Image(),  // НОВОЕ: школа
-            building2: new Image(),  // НОВОЕ: библиотека
-            building3: new Image()   // НОВОЕ: дом
+            building1: new Image(),
+            building2: new Image(),
+            building3: new Image()
         };
 
         // Состояния загрузки
@@ -829,7 +981,7 @@
                 this.x = x;
                 this.width = 200;
                 this.height = 300;
-                this.speed = speed * 0.3; // Медленнее персонажа для параллакса
+                this.speed = speed * 0.3;
             }
 
             update() {
@@ -841,11 +993,10 @@
                 if (this.image.complete && this.image.naturalHeight !== 0) {
                     ctx.drawImage(this.image, this.x, 350 - this.height + 50, this.width, this.height);
                 } else {
-                    // Fallback отрисовка здания
+                    // Fallback отрисовка
                     ctx.fillStyle = '#475569';
                     ctx.fillRect(this.x, 350 - this.height + 50, this.width, this.height);
                     
-                    // Окна
                     ctx.fillStyle = '#fbbf24';
                     for (let i = 0; i < 3; i++) {
                         for (let j = 0; j < 2; j++) {
@@ -944,21 +1095,17 @@
             }
 
             drawFallback() {
-                // Fallback отрисовка персонажа
                 ctx.fillStyle = '#3b82f6';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
                 
-                // Голова
                 ctx.fillStyle = '#fbbf24';
                 ctx.beginPath();
                 ctx.arc(this.x + this.width/2, this.y + 25, 25, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Тело
                 ctx.fillStyle = '#1e40af';
                 ctx.fillRect(this.x, this.y + 50, this.width, 50);
                 
-                // Ноги
                 ctx.fillStyle = '#1e293b';
                 const legOffset = Math.sin(Date.now() / 100) * 10;
                 ctx.fillRect(this.x + 15, this.y + 100, 10, 40 + legOffset);
@@ -1011,7 +1158,6 @@
                 ctx.lineWidth = 3;
                 ctx.stroke();
                 
-                // Блестки
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 for (let i = 0; i < 3; i++) {
                     const sparkleX = this.x + 20 + i * 20;
@@ -1032,7 +1178,7 @@
             }
         }
 
-        // Загрузка ВСЕХ изображений
+        // Загрузка изображений
         function loadImages() {
             Object.keys(images).forEach(key => {
                 images[key].onload = imageLoaded;
@@ -1042,23 +1188,15 @@
                 };
             });
 
-            // Загружаем ВСЕ 12 изображений
-            // Персонаж (5)
             images.playerRun1.src = 'player_run1.png';
             images.playerRun2.src = 'player_run2.png';
             images.playerJump.src = 'player_jump.png';
             images.playerHit.src = 'player_hit.png';
             images.playerSad.src = 'player_sad.png';
-            
-            // Препятствие (1)
             images.snowpile.src = 'snowpile.png';
-            
-            // Фоны (3)
             images.bgSky.src = 'bg_sky.png';
             images.bgMountains.src = 'bg_mountains.png';
             images.bgGround.src = 'bg_ground.png';
-            
-            // Здания (3)
             images.building1.src = 'building1.png';
             images.building2.src = 'building2.png';
             images.building3.src = 'building3.png';
@@ -1123,8 +1261,9 @@
             canvas = document.getElementById('game-canvas');
             ctx = canvas.getContext('2d');
             
-            canvas.width = 900;
-            canvas.height = 500;
+            // Адаптивный размер канваса
+            updateCanvasSize();
+            window.addEventListener('resize', updateCanvasSize);
             
             player = new Player();
             snowpiles = [];
@@ -1139,12 +1278,17 @@
             
             loadImages();
             
-            // Запускаем снегопад
             for (let i = 0; i < 50; i++) {
                 createSnowfall();
             }
             
             requestAnimationFrame(gameLoop);
+        }
+
+        function updateCanvasSize() {
+            const container = document.getElementById('game-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
         }
 
         function createVowelButtons() {
@@ -1159,11 +1303,27 @@
         }
 
         function setupEventListeners() {
+            // Старт по кнопке
             startBtn.addEventListener('click', startGame);
             restartBtn.addEventListener('click', startGame);
             menuBtn.addEventListener('click', () => {
                 gameOverScreen.classList.add('hidden');
                 startScreen.classList.remove('hidden');
+            });
+            
+            // Старт по тапу на весь экран (мобильные)
+            startScreen.addEventListener('click', function(e) {
+                // Если тап не на кнопке, тоже запускаем игру
+                if (!e.target.closest('.btn')) {
+                    startGame();
+                }
+            });
+            
+            gameOverScreen.addEventListener('click', function(e) {
+                // Если тап не на кнопке, тоже запускаем игру
+                if (!e.target.closest('.btn')) {
+                    startGame();
+                }
             });
             
             // Управление прыжком
@@ -1172,24 +1332,23 @@
                     e.preventDefault();
                     if (gameActive && !gamePaused) {
                         player.jump();
-                    } else if (startScreen.classList.contains('hidden')) {
+                    } else if (startScreen.classList.contains('hidden') && 
+                               !gameOverScreen.classList.contains('hidden')) {
                         startGame();
                     }
                 }
             });
             
-            canvas.addEventListener('touchstart', (e) => {
+            // Тап для прыжка в игре
+            canvas.addEventListener('touchstart', handleTap);
+            canvas.addEventListener('click', handleTap);
+            
+            function handleTap(e) {
                 e.preventDefault();
                 if (gameActive && !gamePaused) {
                     player.jump();
                 }
-            });
-            
-            canvas.addEventListener('click', (e) => {
-                if (gameActive && !gamePaused) {
-                    player.jump();
-                }
-            });
+            }
             
             // Ввод букв с клавиатуры
             document.addEventListener('keydown', (e) => {
@@ -1199,6 +1358,17 @@
                         handleVowelClick(key);
                     }
                 }
+            });
+            
+            // Блокировка масштабирования на мобильных
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
             });
         }
 
@@ -1267,7 +1437,6 @@
                 taskWordElement.appendChild(span);
             });
             
-            // ПАУЗИМ ИГРУ и показываем окно поверх всего
             gamePaused = true;
             taskOverlay.classList.remove('hidden');
         }
@@ -1283,7 +1452,6 @@
             const currentLetterElement = letterElements[blankIndex];
             
             if (vowel === correctLetter) {
-                // Правильный ответ
                 currentLetterElement.textContent = vowel;
                 currentLetterElement.classList.remove('blank');
                 currentLetterElement.classList.add('filled');
@@ -1293,16 +1461,14 @@
                     score++;
                     setTimeout(() => {
                         taskOverlay.classList.add('hidden');
-                        gamePaused = false; // ВОЗОБНОВЛЯЕМ ИГРУ
+                        gamePaused = false;
                     }, 500);
                 }
             } else {
-                // Неправильный ответ
                 mistakes++;
                 lives--;
                 updateLivesDisplay();
                 
-                // Анимация ошибки
                 document.body.style.backgroundColor = '#ef4444';
                 setTimeout(() => {
                     document.body.style.backgroundColor = '';
@@ -1311,14 +1477,13 @@
                 if (lives <= 0) {
                     endGame();
                 } else {
-                    // Показываем правильную букву
                     currentLetterElement.textContent = correctLetter;
                     currentLetterElement.classList.remove('blank');
                     currentLetterElement.style.color = '#10b981';
                     
                     setTimeout(() => {
                         taskOverlay.classList.add('hidden');
-                        gamePaused = false; // ВОЗОБНОВЛЯЕМ ИГРУ
+                        gamePaused = false;
                     }, 1000);
                 }
             }
@@ -1334,7 +1499,6 @@
             wordsCountElement.textContent = score;
             mistakesCountElement.textContent = mistakes;
             
-            // Показываем грустного мальчика
             if (images.playerSad.complete && images.playerSad.naturalHeight !== 0) {
                 sadCharacterElement.style.backgroundImage = `url('player_sad.png')`;
             }
@@ -1353,7 +1517,6 @@
             if (gameActive && !gamePaused) {
                 player.update();
                 
-                // Обновляем здания
                 buildings.forEach((building, index) => {
                     building.update();
                     if (building.x < -building.width) {
@@ -1361,23 +1524,19 @@
                     }
                 });
                 
-                // Обновляем сугробы
                 snowpiles.forEach((snowpile, index) => {
                     snowpile.update();
                     
-                    // Проверяем столкновение
                     if (!snowpile.passed && checkCollision(player.getBounds(), snowpile.getBounds())) {
                         snowpile.passed = true;
                         showTask();
                     }
                     
-                    // Удаляем сугробы за пределами экрана
                     if (snowpile.x < -snowpile.width) {
                         snowpiles.splice(index, 1);
                     }
                 });
                 
-                // Генерируем новые здания
                 const currentTime = Date.now();
                 if (currentTime - lastBuildingTime > buildingInterval) {
                     const buildingImages = [images.building1, images.building2, images.building3];
@@ -1386,40 +1545,29 @@
                     lastBuildingTime = currentTime;
                 }
                 
-                // Генерируем новые сугробы
                 if (currentTime - lastSnowpileTime > snowpileInterval) {
                     snowpiles.push(new Snowpile(canvas.width));
                     lastSnowpileTime = currentTime;
                     
-                    // Увеличиваем сложность
                     snowpileInterval = Math.max(500, snowpileInterval * 0.95);
                     speed = Math.min(maxSpeed, speed + acceleration * distance);
                     
-                    // Обновляем скорость зданий
                     buildings.forEach(building => {
                         building.speed = speed * 0.3;
                     });
                 }
                 
-                // Увеличиваем дистанцию
                 distance += speed / 10;
                 updateDistanceDisplay();
             }
             
-            // Рисуем здания (сзади персонажа)
             buildings.forEach(building => building.draw());
-            
-            // Рисуем сугробы
             snowpiles.forEach(snowpile => snowpile.draw());
-            
-            // Рисуем персонажа (спереди)
             player.draw();
             
-            // Обновляем и рисуем снежинки
             updateSnowflakes();
             drawSnowflakes();
             
-            // Создаем новые снежинки для снегопада
             if (Math.random() < 0.05) {
                 createSnowfall();
             }
@@ -1433,22 +1581,18 @@
                 return;
             }
 
-            // Рисуем фоновые изображения
             if (images.bgSky.complete) {
-                // Небо с параллаксом
                 const skyOffset = (distance / 50) % canvas.width;
                 ctx.drawImage(images.bgSky, -skyOffset, 0, canvas.width, canvas.height);
                 ctx.drawImage(images.bgSky, canvas.width - skyOffset, 0, canvas.width, canvas.height);
             }
             
-            // Горы с параллаксом
             if (images.bgMountains.complete) {
                 const mountainsOffset = (distance / 30) % canvas.width;
                 ctx.drawImage(images.bgMountains, -mountainsOffset, 200, canvas.width, 300);
                 ctx.drawImage(images.bgMountains, canvas.width - mountainsOffset, 200, canvas.width, 300);
             }
             
-            // Земля с параллаксом
             if (images.bgGround.complete) {
                 const groundOffset = (distance / 10) % canvas.width;
                 ctx.drawImage(images.bgGround, -groundOffset, 350, canvas.width, 150);
@@ -1459,7 +1603,6 @@
         }
 
         function drawFallbackBackground() {
-            // Fallback фон если изображения не загрузились
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
             gradient.addColorStop(0, '#0f172a');
             gradient.addColorStop(0.5, '#1e293b');
@@ -1467,13 +1610,11 @@
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Луна
             ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.beginPath();
             ctx.arc(canvas.width - 100, 100, 40, 0, Math.PI * 2);
             ctx.fill();
             
-            // Звезды
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
             for (let i = 0; i < 50; i++) {
                 const x = (i * 37) % canvas.width;
@@ -1484,7 +1625,6 @@
                 ctx.fill();
             }
             
-            // Горы
             ctx.fillStyle = '#1e293b';
             ctx.beginPath();
             ctx.moveTo(0, 400);
@@ -1496,7 +1636,6 @@
             ctx.lineTo(0, 400);
             ctx.fill();
             
-            // Снежная земля
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 350, canvas.width, 150);
         }
@@ -1530,7 +1669,6 @@
                    rect1.y + rect1.height > rect2.y;
         }
 
-        // Запускаем игру при загрузке страницы
         window.addEventListener('load', init);
     </script>
 </body>
