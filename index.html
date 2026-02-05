@@ -11,6 +11,10 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
@@ -88,6 +92,7 @@
             box-shadow: 0 5px 15px rgba(21, 101, 192, 0.4);
             font-weight: bold;
             letter-spacing: 1px;
+            touch-action: manipulation;
         }
 
         .btn:hover {
@@ -112,6 +117,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            touch-action: none;
         }
 
         #ui {
@@ -124,6 +130,7 @@
             justify-content: space-between;
             align-items: center;
             z-index: 10;
+            pointer-events: none;
         }
 
         #distance {
@@ -134,11 +141,13 @@
             font-weight: bold;
             color: #1565c0;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
         }
 
         #lives {
             display: flex;
             gap: 10px;
+            pointer-events: none;
         }
 
         .heart {
@@ -148,6 +157,7 @@
             position: relative;
             transform: rotate(45deg);
             box-shadow: 0 3px 8px rgba(244, 67, 54, 0.4);
+            pointer-events: none;
         }
 
         .heart:before,
@@ -183,6 +193,7 @@
             z-index: 20;
             display: none;
             min-width: 300px;
+            touch-action: manipulation;
         }
 
         #wordDisplay {
@@ -190,6 +201,7 @@
             color: #0d47a1;
             margin-bottom: 25px;
             letter-spacing: 2px;
+            pointer-events: none;
         }
 
         #letterButtons {
@@ -198,6 +210,7 @@
             gap: 15px;
             flex-wrap: wrap;
             margin-bottom: 20px;
+            touch-action: manipulation;
         }
 
         .letterBtn {
@@ -212,6 +225,7 @@
             cursor: pointer;
             transition: all 0.2s;
             box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
+            touch-action: manipulation;
         }
 
         .letterBtn:hover {
@@ -234,11 +248,16 @@
             transition: all 0.3s;
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
             font-weight: bold;
+            touch-action: manipulation;
         }
 
         #submitBtn:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 18px rgba(76, 175, 80, 0.6);
+        }
+
+        #submitBtn:active {
+            transform: translateY(1px);
         }
 
         #message {
@@ -253,22 +272,24 @@
             font-size: 1.1em;
             display: none;
             z-index: 30;
+            pointer-events: none;
         }
 
         .mobile-controls {
             display: none;
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 0;
             width: 100%;
             justify-content: center;
             gap: 30px;
             z-index: 5;
+            touch-action: manipulation;
         }
 
         .jump-btn {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             background: radial-gradient(circle, #42a5f5 0%, #1565c0 100%);
             border-radius: 50%;
             border: none;
@@ -276,17 +297,66 @@
             font-size: 1.5em;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(21, 101, 192, 0.5);
-            transition: all 0.2s;
+            box-shadow: 0 10px 25px rgba(21, 101, 192, 0.5);
+            transition: all 0.1s;
             display: flex;
             justify-content: center;
             align-items: center;
             user-select: none;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 100;
         }
 
         .jump-btn:active {
             transform: scale(0.95);
-            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
+            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.3);
+            background: radial-gradient(circle, #1e88e5 0%, #0d47a1 100%);
+        }
+
+        .jump-btn.pressed {
+            transform: scale(0.95);
+            background: radial-gradient(circle, #1e88e5 0%, #0d47a1 100%);
+        }
+
+        /* Область для тапа на весь экран */
+        #touchArea {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: none;
+        }
+
+        /* Стиль для состояния загрузки */
+        #loadingScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 200;
+            border-radius: 20px;
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #42a5f5;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Адаптивность */
@@ -331,41 +401,65 @@
                 height: 50px;
                 font-size: 1.5em;
             }
+
+            .jump-btn {
+                width: 120px;
+                height: 120px;
+                font-size: 1.3em;
+            }
+
+            /* Включаем область тапа на мобильных */
+            #touchArea {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .jump-btn {
+                width: 100px;
+                height: 100px;
+                font-size: 1.2em;
+            }
+
+            #distance {
+                font-size: 1.1em;
+                padding: 8px 15px;
+            }
+
+            .heart {
+                width: 35px;
+                height: 35px;
+            }
+
+            .heart:before,
+            .heart:after {
+                width: 35px;
+                height: 35px;
+            }
+
+            .heart:before {
+                top: -17.5px;
+            }
         }
 
         @media (max-height: 700px) {
             #gameContainer {
                 height: 100vh;
             }
+
+            .jump-btn {
+                width: 110px;
+                height: 110px;
+            }
         }
 
-        /* Стиль для состояния загрузки */
-        #loadingScreen {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 200;
-            border-radius: 20px;
-        }
-
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #42a5f5;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 2s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Для очень высоких экранов */
+        @media (min-height: 800px) {
+            .jump-btn {
+                width: 150px;
+                height: 150px;
+                font-size: 1.6em;
+            }
         }
     </style>
 </head>
@@ -384,6 +478,7 @@
         </div>
 
         <div id="gameScreen">
+            <div id="touchArea"></div>
             <canvas id="gameCanvas"></canvas>
             <div id="ui">
                 <div id="distance">📏 0 м</div>
@@ -399,7 +494,7 @@
                 <button id="submitBtn">ПРОВЕРИТЬ</button>
             </div>
             <div class="mobile-controls">
-                <button class="jump-btn" id="mobileJumpBtn">ПРЫГОК</button>
+                <button class="jump-btn" id="mobileJumpBtn">ПРЫЖОК</button>
             </div>
         </div>
 
@@ -430,6 +525,7 @@
         const submitBtn = document.getElementById('submitBtn');
         const message = document.getElementById('message');
         const mobileJumpBtn = document.getElementById('mobileJumpBtn');
+        const touchArea = document.getElementById('touchArea');
 
         // Настройка холста
         canvas.width = canvas.parentElement.clientWidth;
@@ -445,7 +541,7 @@
             snowpile: new Image()
         };
 
-        // Пути к изображениям (из вашего списка файлов)
+        // Пути к изображениям
         images.player_run1.src = 'player_run1.png';
         images.player_run2.src = 'player_run2.png';
         images.player_jump.src = 'player_jump.png';
@@ -461,7 +557,6 @@
             img.onload = () => {
                 imagesLoaded++;
                 if (imagesLoaded === totalImages) {
-                    // Все изображения загружены
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
                         startScreen.style.display = 'flex';
@@ -555,12 +650,14 @@
             isJumping: false,
             velocityY: 0,
             gameTime: 0,
-            playerState: 'run', // run, jump, hit, sad
+            playerState: 'run',
             animationFrame: 0,
             groundY: canvas.height * 0.7,
             clouds: [],
             buildings: [],
-            useImages: false // Флаг использования изображений
+            useImages: false,
+            isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            touchActive: false
         };
 
         // Класс игрока
@@ -619,10 +716,8 @@
                 
                 // Проверяем загружено ли изображение
                 if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-                    // Используем изображение
                     ctx.drawImage(imgToDraw, this.x, this.y, this.width, this.height);
                 } else {
-                    // Запасной вариант - рисуем примитивную графику
                     this.drawFallback();
                 }
                 
@@ -630,7 +725,7 @@
             }
 
             drawFallback() {
-                // Резервная отрисовка если изображения не загрузились
+                // Резервная отрисовка
                 ctx.fillStyle = this.state === 'hit' ? '#9e9e9e' : 
                                 this.state === 'sad' ? '#78909c' : 
                                 this.state === 'jump' ? '#42a5f5' : '#1565c0';
@@ -651,7 +746,6 @@
                 // Выражение лица
                 ctx.fillStyle = '#0d47a1';
                 if (this.state === 'sad') {
-                    // Грустный рот
                     ctx.beginPath();
                     ctx.arc(this.x + this.width/2, this.y + 25, 10, 0, Math.PI);
                     ctx.stroke();
@@ -676,11 +770,13 @@
                     game.isJumping = true;
                     game.velocityY = -game.jumpPower;
                     this.state = 'jump';
+                    return true;
                 }
+                return false;
             }
         }
 
-        // Класс препятствия (сугроб)
+        // Класс препятствия
         class Obstacle {
             constructor() {
                 this.width = 60;
@@ -697,18 +793,14 @@
             }
 
             draw() {
-                // Проверяем загружено ли изображение сугроба
                 if (images.snowpile.complete && images.snowpile.naturalWidth > 0) {
-                    // Используем изображение
                     ctx.drawImage(images.snowpile, this.x, this.y, this.width, this.height);
                 } else {
-                    // Запасной вариант - рисуем сугроб
                     this.drawFallback();
                 }
             }
 
             drawFallback() {
-                // Сугроб
                 ctx.save();
                 ctx.fillStyle = '#e1f5fe';
                 ctx.beginPath();
@@ -721,7 +813,6 @@
                 ctx.arc(this.x + 3*this.width/4, this.y + 5, this.width/3, 0, Math.PI);
                 ctx.fill();
                 
-                // Снежинки на сугробе
                 ctx.fillStyle = 'white';
                 for(let i = 0; i < 5; i++) {
                     const snowX = this.x + i * this.width/5;
@@ -762,7 +853,6 @@
                 ctx.save();
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 
-                // Рисуем пушистое облако
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size * 0.3, 0, Math.PI * 2);
                 ctx.arc(this.x + this.size * 0.3, this.y - this.size * 0.1, this.size * 0.4, 0, Math.PI * 2);
@@ -784,7 +874,6 @@
                 this.color = `hsl(${200 + Math.random() * 40}, 70%, ${60 + Math.random() * 20}%)`;
                 this.windows = [];
                 
-                // Создаем окна
                 for(let i = 0; i < Math.floor(this.width/30); i++) {
                     for(let j = 0; j < Math.floor(this.height/40); j++) {
                         if(Math.random() > 0.3) {
@@ -807,7 +896,6 @@
                     this.y = game.groundY - this.height;
                     this.color = `hsl(${200 + Math.random() * 40}, 70%, ${60 + Math.random() * 20}%)`;
                     
-                    // Обновляем окна
                     this.windows = [];
                     for(let i = 0; i < Math.floor(this.width/30); i++) {
                         for(let j = 0; j < Math.floor(this.height/40); j++) {
@@ -826,11 +914,9 @@
             draw() {
                 ctx.save();
                 
-                // Здание
                 ctx.fillStyle = this.color;
                 ctx.fillRect(this.x, this.y, this.width, this.height);
                 
-                // Крыша
                 ctx.fillStyle = '#37474f';
                 ctx.beginPath();
                 ctx.moveTo(this.x - 5, this.y);
@@ -839,7 +925,6 @@
                 ctx.closePath();
                 ctx.fill();
                 
-                // Окна
                 this.windows.forEach(window => {
                     ctx.fillStyle = window.lit ? '#fff59d' : '#546e7a';
                     ctx.fillRect(this.x + window.x, this.y + window.y, 15, 25);
@@ -883,15 +968,17 @@
             const hearts = document.querySelectorAll('.heart');
             hearts.forEach((heart, index) => {
                 heart.style.opacity = index < game.lives ? '1' : '0.3';
+                if (index >= game.lives) {
+                    heart.style.animation = 'pulse 0.5s';
+                }
             });
         }
 
         function showWordChallenge(wordObj) {
             game.currentWord = wordObj;
             game.playerAnswer = [];
-            player.state = 'hit'; // Персонаж в сугробе
+            player.state = 'hit';
             
-            // Разделяем слово на части
             const parts = wordObj.word.split('.');
             wordDisplay.innerHTML = '';
             
@@ -910,7 +997,6 @@
                 }
             });
             
-            // Создаем кнопки с гласными буквами
             letterButtons.innerHTML = '';
             const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
             
@@ -946,21 +1032,19 @@
                 showMessage('Правильно! ✓', '#388e3c');
                 wordChallenge.style.display = 'none';
                 game.running = true;
-                player.state = 'run'; // Возвращаем к бегу
+                player.state = 'run';
                 
-                // Удаляем препятствие, которое вызвало вопрос
                 if (game.obstacles.length > 0) {
                     game.obstacles.shift();
                 }
                 
-                // Увеличиваем счет
                 game.score += 100;
             } else {
                 game.lives--;
                 updateLives();
                 
                 if(game.lives <= 0) {
-                    player.state = 'sad'; // Грустный персонаж
+                    player.state = 'sad';
                     setTimeout(() => {
                         gameOver();
                         showMessage(`Правильно: ${game.currentWord.full}`, '#f44336');
@@ -969,7 +1053,7 @@
                     showMessage(`Ошибка! Правильно: ${game.currentWord.full}`, '#f44336');
                     wordChallenge.style.display = 'none';
                     game.running = true;
-                    player.state = 'run'; // Возвращаем к бегу
+                    player.state = 'run';
                     if (game.obstacles.length > 0) {
                         game.obstacles.shift();
                     }
@@ -983,7 +1067,6 @@
                 game.obstacles.push(new Obstacle());
                 game.lastObstacleTime = now;
                 
-                // Уменьшаем интервал между препятствиями
                 game.obstacleInterval = Math.max(
                     game.minObstacleInterval,
                     game.obstacleInterval - 50
@@ -994,7 +1077,6 @@
         function updateGame() {
             if (!game.running) return;
             
-            // Обновляем дистанцию и скорость
             game.distance += game.speed / 100;
             game.speed = Math.min(
                 game.maxSpeed,
@@ -1003,37 +1085,29 @@
             
             distanceDisplay.textContent = `📏 ${Math.floor(game.distance)} м`;
             
-            // Обновляем игрока
             player.update();
             
-            // Обновляем препятствия
             game.obstacles.forEach((obstacle, index) => {
                 obstacle.update();
                 
-                // Проверка столкновения
                 if (obstacle.collidesWith(player) && !game.isJumping) {
                     showWordChallenge(obstacle.word);
                 }
                 
-                // Удаляем препятствия за экраном
                 if (obstacle.x < -obstacle.width) {
                     game.obstacles.splice(index, 1);
                 }
             });
             
-            // Обновляем облака и здания
             game.clouds.forEach(cloud => cloud.update());
             game.buildings.forEach(building => building.update());
             
-            // Спавним новые препятствия
             spawnObstacle();
         }
 
         function drawGame() {
-            // Очищаем холст
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Рисуем небо
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
             gradient.addColorStop(0, '#bbdefb');
             gradient.addColorStop(0.6, '#e3f2fd');
@@ -1041,14 +1115,12 @@
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Рисуем солнце
             ctx.save();
             ctx.fillStyle = '#ffd54f';
             ctx.beginPath();
             ctx.arc(canvas.width - 100, 80, 40, 0, Math.PI * 2);
             ctx.fill();
             
-            // Лучи солнца
             ctx.strokeStyle = '#ffd54f';
             ctx.lineWidth = 4;
             for(let i = 0; i < 12; i++) {
@@ -1065,30 +1137,21 @@
             }
             ctx.restore();
             
-            // Рисуем облака
             game.clouds.forEach(cloud => cloud.draw());
-            
-            // Рисуем здания
             game.buildings.forEach(building => building.draw());
             
-            // Рисуем землю (снег)
             ctx.fillStyle = '#e3f2fd';
             ctx.fillRect(0, game.groundY, canvas.width, canvas.height - game.groundY);
             
-            // Рисуем снег на земле
             ctx.fillStyle = 'white';
             for(let i = 0; i < canvas.width; i += 20) {
                 const height = 10 + Math.sin(i * 0.01 + game.gameTime * 0.01) * 5;
                 ctx.fillRect(i, game.groundY, 15, height);
             }
             
-            // Рисуем препятствия
             game.obstacles.forEach(obstacle => obstacle.draw());
-            
-            // Рисуем игрока
             player.draw();
             
-            // Рисуем снежинки
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
             for(let i = 0; i < 100; i++) {
                 const x = (game.distance * 2 + i * 10) % canvas.width;
@@ -1137,7 +1200,9 @@
                 groundY: canvas.height * 0.7,
                 clouds: game.clouds,
                 buildings: game.buildings,
-                useImages: imagesLoaded === totalImages
+                useImages: imagesLoaded === totalImages,
+                isMobile: game.isMobile,
+                touchActive: false
             };
             
             player.state = 'run';
@@ -1160,26 +1225,75 @@
             gameOverScreen.style.display = 'flex';
         }
 
+        // Управление прыжком - улучшенная версия
+        function handleJump() {
+            const jumped = player.jump();
+            if (jumped && game.isMobile) {
+                // Визуальная обратная связь на мобильных
+                mobileJumpBtn.classList.add('pressed');
+                setTimeout(() => {
+                    mobileJumpBtn.classList.remove('pressed');
+                }, 150);
+            }
+            return jumped;
+        }
+
         // Обработчики событий
         startBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', startGame);
         submitBtn.addEventListener('click', checkAnswer);
 
-        // Управление прыжком
+        // Управление на ПК
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                player.jump();
+                handleJump();
             }
         });
 
-        mobileJumpBtn.addEventListener('click', () => {
-            player.jump();
+        // Управление на мобильных - улучшенное
+        mobileJumpBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleJump();
         });
 
+        // Обработка touch событий
         mobileJumpBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            player.jump();
+            e.stopPropagation();
+            handleJump();
+            game.touchActive = true;
+            mobileJumpBtn.classList.add('pressed');
+        }, { passive: false });
+
+        mobileJumpBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            game.touchActive = false;
+            mobileJumpBtn.classList.remove('pressed');
+        }, { passive: false });
+
+        mobileJumpBtn.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            game.touchActive = false;
+            mobileJumpBtn.classList.remove('pressed');
+        }, { passive: false });
+
+        // Дополнительная область для тапа (весь экран кроме кнопок)
+        touchArea.addEventListener('touchstart', (e) => {
+            if (game.running && !game.touchActive) {
+                e.preventDefault();
+                e.stopPropagation();
+                handleJump();
+            }
+        }, { passive: false });
+
+        touchArea.addEventListener('click', (e) => {
+            if (game.running && !game.touchActive) {
+                e.preventDefault();
+                handleJump();
+            }
         });
 
         // Обработка изменения размера окна
@@ -1190,17 +1304,31 @@
             player.y = game.groundY - player.height;
         });
 
+        // Предотвращаем стандартное поведение браузера для touch событий
+        document.addEventListener('touchmove', (e) => {
+            if (game.running) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         // Инициализация
         updateLives();
         
-        // Если изображения не загрузились, показываем стартовый экран через 1 секунду
+        // Если изображения не загрузились, показываем стартовый экран
         setTimeout(() => {
             if (loadingScreen.style.display !== 'none') {
                 loadingScreen.style.display = 'none';
                 startScreen.style.display = 'flex';
-                showMessage('Игра загружена. Изображения будут использованы при наличии.', '#ff9800');
+                showMessage('Игра загружена. Используйте SPACE или кнопку ПРЫЖОК', '#ff9800');
             }
         }, 1000);
+
+        // Сообщение о управлении
+        if (game.isMobile) {
+            setTimeout(() => {
+                showMessage('Тапните по экрану или кнопке для прыжка', '#42a5f5');
+            }, 2000);
+        }
     </script>
 </body>
 </html>
