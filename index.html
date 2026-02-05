@@ -48,10 +48,16 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             z-index: 100;
             border-radius: 20px;
             padding: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         #gameOverScreen, #winScreen {
@@ -65,6 +71,12 @@
             text-shadow: 3px 3px 0 #bbdefb;
             text-align: center;
             line-height: 1.2;
+            animation: titleGlow 2s infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 3px 3px 0 #bbdefb, 0 0 5px rgba(21, 101, 192, 0.3); }
+            to { text-shadow: 3px 3px 0 #bbdefb, 0 0 15px rgba(21, 101, 192, 0.6); }
         }
 
         h2 {
@@ -98,10 +110,34 @@
             touch-action: manipulation;
             margin: 10px;
             min-width: 200px;
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover:before {
+            left: 100%;
         }
 
         .btn:hover {
-            transform: translateY(-3px);
+            transform: translateY(-3px) scale(1.05);
             box-shadow: 0 8px 20px rgba(21, 101, 192, 0.6);
         }
 
@@ -159,12 +195,25 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            animation: slideInLeft 0.5s ease-out;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         #lives {
             display: flex;
             gap: 8px;
             pointer-events: none;
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .heart {
@@ -175,6 +224,7 @@
             transform: rotate(45deg);
             box-shadow: 0 3px 8px rgba(244, 67, 54, 0.4);
             pointer-events: none;
+            transition: all 0.3s;
         }
 
         .heart:before,
@@ -185,6 +235,7 @@
             background-color: #f44336;
             border-radius: 50%;
             position: absolute;
+            transition: all 0.3s;
         }
 
         .heart:before {
@@ -195,6 +246,16 @@
         .heart:after {
             top: 0;
             left: -17.5px;
+        }
+
+        .heart.lost {
+            animation: heartLost 0.5s forwards;
+        }
+
+        @keyframes heartLost {
+            0% { transform: rotate(45deg) scale(1); opacity: 1; }
+            50% { transform: rotate(45deg) scale(1.2); opacity: 0.5; }
+            100% { transform: rotate(45deg) scale(0); opacity: 0; }
         }
 
         #wordChallenge {
@@ -212,6 +273,13 @@
             width: 90%;
             max-width: 400px;
             touch-action: manipulation;
+            animation: popIn 0.3s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes popIn {
+            from { transform: translateX(-50%) scale(0.5); opacity: 0; }
+            to { transform: translateX(-50%) scale(1); opacity: 1; }
         }
 
         #wordDisplay {
@@ -231,6 +299,13 @@
         .correct-letter {
             color: #388e3c !important;
             font-weight: bold;
+            animation: correctPop 0.5s ease-out;
+        }
+
+        @keyframes correctPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         #letterButtons {
@@ -258,10 +333,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
         .letterBtn:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-5px);
             box-shadow: 0 6px 12px rgba(21, 101, 192, 0.5);
         }
 
@@ -283,10 +364,12 @@
             touch-action: manipulation;
             width: 100%;
             margin-top: 10px;
+            animation: float 3s infinite ease-in-out;
+            animation-delay: 0.2s;
         }
 
         #submitBtn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
             box-shadow: 0 7px 18px rgba(76, 175, 80, 0.6);
         }
 
@@ -309,6 +392,12 @@
             pointer-events: none;
             text-align: center;
             max-width: 90%;
+            animation: slideInTop 0.3s ease-out;
+        }
+
+        @keyframes slideInTop {
+            from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
 
         .mobile-controls {
@@ -343,6 +432,36 @@
             touch-action: manipulation;
             position: relative;
             z-index: 100;
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 10px 25px rgba(21, 101, 192, 0.5),
+                           0 0 10px rgba(33, 150, 243, 0.5);
+            }
+            50% { 
+                box-shadow: 0 10px 25px rgba(21, 101, 192, 0.8),
+                           0 0 20px rgba(33, 150, 243, 0.8);
+            }
+        }
+
+        .jump-btn:before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: linear-gradient(45deg, #42a5f5, #1565c0, #42a5f5);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .jump-btn:hover:before {
+            opacity: 0.5;
         }
 
         .jump-btn:active {
@@ -372,7 +491,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -412,6 +531,13 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            backdrop-filter: blur(5px);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-3px); }
         }
 
         .words-progress {
@@ -430,6 +556,13 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            backdrop-filter: blur(5px);
+            animation: slideInBottom 0.5s ease-out;
+        }
+
+        @keyframes slideInBottom {
+            from { transform: translateX(-50%) translateY(50px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
 
         /* Адаптивность для мобильных */
@@ -794,33 +927,88 @@
             {word: "ош.ломлённый", answer: "е", full: "ошеломлённый", learned: false}
         ];
 
-        // Класс для частиц анимации
-        class Particle {
-            constructor(x, y, color) {
+        // Класс для снежинок фона
+        class Snowflake {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speed = Math.random() * 1 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.wind = Math.random() * 0.5 - 0.25;
+            }
+            
+            update() {
+                this.y += this.speed;
+                this.x += this.wind;
+                
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Класс для частиц анимации разбивания сугроба
+        class SnowParticle {
+            constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.color = color;
-                this.size = Math.random() * 8 + 4;
-                this.speedX = Math.random() * 6 - 3;
-                this.speedY = Math.random() * 6 - 3;
+                this.size = Math.random() * 6 + 3;
+                this.speedX = Math.random() * 8 - 4;
+                this.speedY = Math.random() * 8 - 4;
                 this.life = 1.0;
-                this.decay = Math.random() * 0.05 + 0.02;
+                this.decay = Math.random() * 0.03 + 0.02;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = Math.random() * 0.2 - 0.1;
             }
             
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
                 this.life -= this.decay;
-                this.size *= 0.95;
+                this.size *= 0.97;
+                this.speedY += 0.1; // Гравитация
+                this.rotation += this.rotationSpeed;
             }
             
             draw() {
                 ctx.save();
                 ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // Рисуем снежинку или снежный комок
+                if (Math.random() > 0.5) {
+                    // Круглый снежок
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    // Снежинка
+                    for(let i = 0; i < 6; i++) {
+                        const angle = (i * Math.PI) / 3;
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(Math.cos(angle) * this.size, Math.sin(angle) * this.size);
+                        ctx.strokeStyle = 'white';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+                
                 ctx.restore();
             }
         }
@@ -852,6 +1040,7 @@
             groundY: canvas.height * 0.75,
             clouds: [],
             buildings: [],
+            snowflakes: [],
             learnedWords: 0,
             allWordsLearned: false,
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -863,10 +1052,11 @@
             obstacleCollisionX: 0,
             obstacleCollisionY: 0,
             showCollisionEffect: false,
-            collisionEffectTimer: 0
+            collisionEffectTimer: 0,
+            backgroundOffset: 0
         };
 
-        // Класс игрока с прыжком вперед и вверх
+        // Класс игрока
         class Player {
             constructor() {
                 this.width = 100;
@@ -968,7 +1158,13 @@
                 const offsetY = this.height - drawHeight;
                 
                 if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-                    ctx.drawImage(imgToDraw, this.x + offsetX, this.y + offsetY, drawWidth, drawHeight);
+                    // Легкое дрожание при беге
+                    if (this.state === 'run') {
+                        const shake = Math.sin(game.gameTime * 0.1) * 0.5;
+                        ctx.drawImage(imgToDraw, this.x + offsetX + shake, this.y + offsetY, drawWidth, drawHeight);
+                    } else {
+                        ctx.drawImage(imgToDraw, this.x + offsetX, this.y + offsetY, drawWidth, drawHeight);
+                    }
                 } else {
                     this.drawFallback();
                 }
@@ -1041,11 +1237,9 @@
                 }
             }
             
-            // Проверка, перепрыгнул ли игрок препятствие
             hasJumpedOver(obstacle) {
                 if (!game.isJumping) return false;
                 
-                // Игрок перепрыгнул, если он выше препятствия и прошел мимо него
                 const playerBottom = this.y + this.height;
                 const obstacleTop = obstacle.y;
                 const playerRight = this.x + this.width;
@@ -1068,6 +1262,7 @@
                 this.showWord = true;
                 this.jumpedOver = false;
                 this.collided = false;
+                this.pulse = 0;
             }
             
             getUnlearnedWord() {
@@ -1082,8 +1277,8 @@
             update() {
                 this.x -= this.speed;
                 this.speed = game.speed;
+                this.pulse = Math.sin(game.gameTime * 0.1) * 0.5;
                 
-                // Проверяем, перепрыгнул ли игрок сугроб
                 if (!this.jumpedOver && !this.collided && player.hasJumpedOver(this)) {
                     this.jumpedOver = true;
                     this.showWord = false;
@@ -1091,7 +1286,6 @@
             }
 
             draw() {
-                // Не рисуем сугроб если было столкновение
                 if (this.collided) return;
                 
                 if (images.snowpile.complete && images.snowpile.naturalWidth > 0) {
@@ -1101,46 +1295,33 @@
                     const drawHeight = imageSizes.snowpile.height * scale;
                     const offsetY = this.height - drawHeight;
                     
-                    ctx.drawImage(images.snowpile, this.x, this.y + offsetY, drawWidth, drawHeight);
+                    // Легкая пульсация сугроба
+                    const pulseOffset = this.pulse;
+                    ctx.drawImage(images.snowpile, this.x + pulseOffset, this.y + offsetY + pulseOffset, 
+                                drawWidth, drawHeight);
                 } else {
                     this.drawFallback();
-                }
-                
-                // Отображаем подсказку, если слово не изучено и не перепрыгнуто
-                if (!this.word.learned && this.showWord && !this.jumpedOver && !this.collided) {
-                    ctx.save();
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.fillRect(this.x - 10, this.y - 40, this.width + 20, 35);
-                    ctx.strokeStyle = '#1565c0';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(this.x - 10, this.y - 40, this.width + 20, 35);
-                    
-                    ctx.fillStyle = '#0d47a1';
-                    ctx.font = 'bold 16px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('Слово!', this.x + this.width/2, this.y - 22);
-                    ctx.restore();
                 }
             }
 
             drawFallback() {
                 ctx.save();
+                const pulse = this.pulse;
                 ctx.fillStyle = '#e1f5fe';
                 ctx.beginPath();
-                ctx.arc(this.x + this.width/2, this.y, this.width/2, 0, Math.PI);
+                ctx.arc(this.x + this.width/2 + pulse, this.y + pulse, this.width/2, 0, Math.PI);
                 ctx.fill();
                 
                 ctx.fillStyle = '#b3e5fc';
                 ctx.beginPath();
-                ctx.arc(this.x + this.width/4, this.y + 8, this.width/3, 0, Math.PI);
-                ctx.arc(this.x + 3*this.width/4, this.y + 8, this.width/3, 0, Math.PI);
+                ctx.arc(this.x + this.width/4 + pulse, this.y + 8 + pulse, this.width/3, 0, Math.PI);
+                ctx.arc(this.x + 3*this.width/4 + pulse, this.y + 8 + pulse, this.width/3, 0, Math.PI);
                 ctx.fill();
                 
                 ctx.fillStyle = 'white';
                 for(let i = 0; i < 7; i++) {
-                    const snowX = this.x + i * this.width/7;
-                    const snowY = this.y + 15 - Math.sin(i) * 4;
+                    const snowX = this.x + i * this.width/7 + pulse;
+                    const snowY = this.y + 15 - Math.sin(i) * 4 + pulse;
                     ctx.beginPath();
                     ctx.arc(snowX, snowY, 4, 0, Math.PI * 2);
                     ctx.fill();
@@ -1166,17 +1347,21 @@
             }
         }
 
-        // Класс облака
+        // Класс облака с анимацией
         class Cloud {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * 150 + 20;
                 this.speed = Math.random() * 0.5 + 0.2;
                 this.size = Math.random() * 50 + 70;
+                this.float = Math.random() * Math.PI * 2;
             }
 
             update() {
                 this.x -= this.speed * (game.speed / 10);
+                this.float += 0.01;
+                this.y += Math.sin(this.float) * 0.2;
+                
                 if (this.x < -this.size) {
                     this.x = canvas.width + this.size;
                     this.y = Math.random() * 150 + 20;
@@ -1185,13 +1370,14 @@
 
             draw() {
                 ctx.save();
+                const floatOffset = Math.sin(this.float) * 3;
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
                 
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size * 0.3, 0, Math.PI * 2);
-                ctx.arc(this.x + this.size * 0.3, this.y - this.size * 0.1, this.size * 0.4, 0, Math.PI * 2);
-                ctx.arc(this.x + this.size * 0.6, this.y, this.size * 0.35, 0, Math.PI * 2);
-                ctx.arc(this.x + this.size * 0.3, this.y + this.size * 0.2, this.size * 0.3, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y + floatOffset, this.size * 0.3, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.3, this.y - this.size * 0.1 + floatOffset, this.size * 0.4, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.6, this.y + floatOffset, this.size * 0.35, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.3, this.y + this.size * 0.2 + floatOffset, this.size * 0.3, 0, Math.PI * 2);
                 ctx.fill();
                 
                 ctx.restore();
@@ -1207,6 +1393,7 @@
                 this.y = game.groundY - this.height;
                 this.color = `hsl(${200 + Math.random() * 40}, 70%, ${60 + Math.random() * 20}%)`;
                 this.windows = [];
+                this.windowTimer = 0;
                 
                 for(let i = 0; i < Math.floor(this.width/35); i++) {
                     for(let j = 0; j < Math.floor(this.height/45); j++) {
@@ -1214,7 +1401,8 @@
                             this.windows.push({
                                 x: i * 35 + 12,
                                 y: j * 45 + 12,
-                                lit: Math.random() > 0.5
+                                lit: Math.random() > 0.5,
+                                flicker: Math.random() * Math.PI * 2
                             });
                         }
                     }
@@ -1223,6 +1411,8 @@
 
             update() {
                 this.x -= game.speed * 0.5;
+                this.windowTimer += 0.05;
+                
                 if (this.x < -this.width) {
                     this.x = canvas.width;
                     this.width = Math.random() * 120 + 100;
@@ -1237,7 +1427,8 @@
                                 this.windows.push({
                                     x: i * 35 + 12,
                                     y: j * 45 + 12,
-                                    lit: Math.random() > 0.5
+                                    lit: Math.random() > 0.5,
+                                    flicker: Math.random() * Math.PI * 2
                                 });
                             }
                         }
@@ -1260,11 +1451,12 @@
                 ctx.fill();
                 
                 this.windows.forEach(window => {
-                    ctx.fillStyle = window.lit ? '#fff59d' : '#546e7a';
+                    const flicker = Math.sin(this.windowTimer + window.flicker) * 0.2 + 0.8;
+                    ctx.fillStyle = window.lit ? `rgba(255, 245, 157, ${flicker})` : '#546e7a';
                     ctx.fillRect(this.x + window.x, this.y + window.y, 18, 30);
                     
                     if(window.lit) {
-                        ctx.fillStyle = '#ffd54f';
+                        ctx.fillStyle = `rgba(255, 213, 79, ${flicker})`;
                         ctx.fillRect(this.x + window.x + 3, this.y + window.y + 3, 12, 24);
                     }
                 });
@@ -1279,6 +1471,11 @@
         // Инициализация облаков
         for(let i = 0; i < 10; i++) {
             game.clouds.push(new Cloud());
+        }
+
+        // Инициализация снежинок
+        for(let i = 0; i < 100; i++) {
+            game.snowflakes.push(new Snowflake());
         }
 
         // Инициализация зданий
@@ -1301,7 +1498,9 @@
         function updateLives() {
             const hearts = document.querySelectorAll('.heart');
             hearts.forEach((heart, index) => {
-                heart.style.opacity = index < game.lives ? '1' : '0.3';
+                if (index >= game.lives && !heart.classList.contains('lost')) {
+                    heart.classList.add('lost');
+                }
             });
         }
 
@@ -1323,9 +1522,9 @@
             }
         }
 
-        function createParticleEffect(x, y, color) {
-            for(let i = 0; i < 20; i++) {
-                game.particles.push(new Particle(x, y, color));
+        function createSnowEffect(x, y) {
+            for(let i = 0; i < 30; i++) {
+                game.particles.push(new SnowParticle(x, y));
             }
         }
 
@@ -1342,13 +1541,20 @@
             game.particles.forEach(particle => particle.draw());
         }
 
+        function updateSnowflakes() {
+            game.snowflakes.forEach(snowflake => snowflake.update());
+        }
+
+        function drawSnowflakes() {
+            game.snowflakes.forEach(snowflake => snowflake.draw());
+        }
+
         function showWordChallenge(wordObj, obstacle) {
             game.currentWord = wordObj;
             game.currentObstacle = obstacle;
             game.playerAnswer = [];
             player.state = 'hit';
             
-            // Запоминаем позицию столкновения для эффекта
             game.obstacleCollisionX = obstacle.x + obstacle.width/2;
             game.obstacleCollisionY = obstacle.y + obstacle.height/2;
             obstacle.collided = true;
@@ -1395,6 +1601,14 @@
                 if(inputSpans[i].textContent === '_') {
                     inputSpans[i].textContent = letter;
                     game.playerAnswer[i] = letter;
+                    // Анимация кнопки
+                    const btn = document.querySelector(`.letterBtn:nth-child(${i + 1})`);
+                    if (btn) {
+                        btn.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            btn.style.transform = '';
+                        }, 100);
+                    }
                     break;
                 }
             }
@@ -1405,20 +1619,24 @@
             const userAnswer = game.playerAnswer.join(',');
             
             if(userAnswer === answer) {
-                // Помечаем слово как изученное
                 game.currentWord.learned = true;
                 updateLearnedWords();
                 
-                // Подсвечиваем правильные буквы зеленым
                 const inputSpans = document.querySelectorAll('.input-letter');
                 inputSpans.forEach(span => {
                     span.classList.add('correct-letter');
                 });
                 
-                // Создаем эффект разлетающихся частиц
-                createParticleEffect(game.obstacleCollisionX, game.obstacleCollisionY, '#4caf50');
+                // Создаем эффект разлетающихся снежинок
+                createSnowEffect(game.obstacleCollisionX, game.obstacleCollisionY);
                 game.showCollisionEffect = true;
                 game.collisionEffectTimer = 30;
+                
+                // Анимация кнопки
+                submitBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    submitBtn.style.transform = '';
+                }, 100);
                 
                 setTimeout(() => {
                     showMessage('Правильно! ✓', '#388e3c');
@@ -1426,7 +1644,6 @@
                     game.running = true;
                     player.state = 'run';
                     
-                    // Находим и удаляем препятствие с этим словом
                     const obstacleIndex = game.obstacles.findIndex(obs => 
                         obs === game.currentObstacle
                     );
@@ -1436,7 +1653,6 @@
                     
                     game.score += 100;
                     
-                    // Увеличиваем скорость после каждого правильного ответа
                     game.speed = Math.min(game.maxSpeed, game.speed + 0.5);
                     updateSpeedIndicator();
                 }, 500);
@@ -1488,6 +1704,8 @@
             
             player.update();
             updateParticles();
+            updateSnowflakes();
+            game.backgroundOffset += game.speed * 0.001;
             
             if (game.showCollisionEffect) {
                 game.collisionEffectTimer--;
@@ -1499,18 +1717,15 @@
             game.obstacles.forEach((obstacle, index) => {
                 obstacle.update();
                 
-                // Если игрок перепрыгнул сугроб и слово не изучено
                 if (obstacle.jumpedOver && !obstacle.word.learned && obstacle.showWord) {
                     showMessage('Перепрыгнул!', '#42a5f5');
                     obstacle.showWord = false;
                 }
                 
-                // Столкновение только если не перепрыгнули и не было столкновения
                 if (obstacle.collidesWith(player) && obstacle.showWord) {
                     showWordChallenge(obstacle.word, obstacle);
                 }
                 
-                // Удаляем препятствия за экраном
                 if (obstacle.x < -obstacle.width) {
                     game.obstacles.splice(index, 1);
                 }
@@ -1525,27 +1740,35 @@
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            // Анимированный градиент фона
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#bbdefb');
-            gradient.addColorStop(0.6, '#e3f2fd');
-            gradient.addColorStop(1, '#f3e5f5');
+            const hueShift = Math.sin(game.backgroundOffset) * 5;
+            gradient.addColorStop(0, `hsl(${200 + hueShift}, 70%, 85%)`);
+            gradient.addColorStop(0.6, `hsl(${210 + hueShift}, 70%, 90%)`);
+            gradient.addColorStop(1, `hsl(${220 + hueShift}, 70%, 95%)`);
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            // Снежинки фона
+            drawSnowflakes();
+            
             ctx.save();
+            // Анимированное солнце
+            const sunPulse = Math.sin(game.gameTime * 0.02) * 5;
             ctx.fillStyle = '#ffd54f';
             ctx.beginPath();
-            ctx.arc(canvas.width - 80, 70, 35, 0, Math.PI * 2);
+            ctx.arc(canvas.width - 80, 70 + sunPulse, 35, 0, Math.PI * 2);
             ctx.fill();
             
+            // Анимированные лучи солнца
             ctx.strokeStyle = '#ffd54f';
             ctx.lineWidth = 3;
             for(let i = 0; i < 12; i++) {
-                const angle = (i * Math.PI) / 6;
+                const angle = (i * Math.PI) / 6 + game.backgroundOffset;
                 const x1 = canvas.width - 80 + Math.cos(angle) * 40;
-                const y1 = 70 + Math.sin(angle) * 40;
+                const y1 = 70 + sunPulse + Math.sin(angle) * 40;
                 const x2 = canvas.width - 80 + Math.cos(angle) * 55;
-                const y2 = 70 + Math.sin(angle) * 55;
+                const y2 = 70 + sunPulse + Math.sin(angle) * 55;
                 
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
@@ -1557,6 +1780,7 @@
             game.clouds.forEach(cloud => cloud.draw());
             game.buildings.forEach(building => building.draw());
             
+            // Анимированный снег на земле
             ctx.fillStyle = '#e3f2fd';
             ctx.fillRect(0, game.groundY, canvas.width, canvas.height - game.groundY);
             
@@ -1570,10 +1794,11 @@
             player.draw();
             drawParticles();
             
+            // Падающий снег
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            for(let i = 0; i < 80; i++) {
-                const x = (game.distance * 2 + i * 12) % canvas.width;
-                const y = (Math.sin(game.distance * 0.01 + i) * 25 + i * 6) % canvas.height;
+            for(let i = 0; i < 50; i++) {
+                const x = (game.distance * 2 + i * 15) % canvas.width;
+                const y = (Math.sin(game.distance * 0.01 + i) * 20 + i * 8 + game.gameTime * 2) % canvas.height;
                 const size = Math.sin(game.distance * 0.02 + i) * 2 + 2;
                 
                 ctx.beginPath();
@@ -1593,7 +1818,6 @@
         }
 
         function startGame() {
-            // Сбрасываем изученные слова
             wordList.forEach(word => word.learned = false);
             
             game = {
@@ -1623,6 +1847,7 @@
                 groundY: canvas.height * 0.75,
                 clouds: game.clouds,
                 buildings: game.buildings,
+                snowflakes: game.snowflakes,
                 learnedWords: 0,
                 allWordsLearned: false,
                 isMobile: game.isMobile,
@@ -1634,7 +1859,8 @@
                 obstacleCollisionX: 0,
                 obstacleCollisionY: 0,
                 showCollisionEffect: false,
-                collisionEffectTimer: 0
+                collisionEffectTimer: 0,
+                backgroundOffset: 0
             };
             
             player.state = 'run';
@@ -1643,6 +1869,11 @@
             player.x = 100;
             player.targetX = 100;
             player.jumpProgress = 0;
+            
+            // Сбрасываем анимации сердечек
+            document.querySelectorAll('.heart').forEach(heart => {
+                heart.classList.remove('lost');
+            });
             
             updateLives();
             updateLearnedWords();
@@ -1676,14 +1907,12 @@
             winScreen.style.display = 'none';
             gameScreen.style.display = 'block';
             
-            // Увеличиваем скорость после победы
             game.speed = Math.min(game.maxSpeed, game.speed + 2);
             updateSpeedIndicator();
             
             gameLoop();
         }
 
-        // Управление прыжком
         function handleJump() {
             const jumped = player.jump();
             if (jumped && game.isMobile) {
@@ -1702,7 +1931,6 @@
         winRestartBtn.addEventListener('click', startGame);
         submitBtn.addEventListener('click', checkAnswer);
 
-        // Управление на ПК
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -1710,7 +1938,6 @@
             }
         });
 
-        // Управление на мобильных
         mobileJumpBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleJump();
@@ -1738,7 +1965,6 @@
             mobileJumpBtn.classList.remove('pressed');
         }, { passive: false });
 
-        // Дополнительная область для тапа
         touchArea.addEventListener('touchstart', (e) => {
             if (game.running && !game.touchActive) {
                 e.preventDefault();
@@ -1754,14 +1980,12 @@
             }
         });
 
-        // Обработка изменения размера окна
         window.addEventListener('resize', () => {
             resizeCanvas();
             game.groundY = canvas.height * 0.75;
             player.updateBasePosition();
         });
 
-        // Предотвращаем стандартное поведение браузера
         document.addEventListener('touchmove', (e) => {
             if (game.running) {
                 e.preventDefault();
