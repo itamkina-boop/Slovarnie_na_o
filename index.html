@@ -549,6 +549,16 @@
         images.player_sad.src = 'player_sad.png';
         images.snowpile.src = 'snowpile.png';
 
+        // Размеры изображений для сохранения пропорций
+        const imageSizes = {
+            player_run1: {width: 80, height: 100},
+            player_run2: {width: 80, height: 100},
+            player_jump: {width: 80, height: 120}, // Прыжок выше
+            player_hit: {width: 80, height: 100},
+            player_sad: {width: 80, height: 100},
+            snowpile: {width: 60, height: 40}
+        };
+
         let imagesLoaded = 0;
         const totalImages = Object.keys(images).length;
 
@@ -556,6 +566,15 @@
         Object.values(images).forEach(img => {
             img.onload = () => {
                 imagesLoaded++;
+                // Автоматически определяем размеры изображений при загрузке
+                if (!imageSizes[img.src.split('/').pop().split('.')[0]]) {
+                    const name = img.src.split('/').pop().split('.')[0];
+                    imageSizes[name] = {
+                        width: img.naturalWidth,
+                        height: img.naturalHeight
+                    };
+                }
+                
                 if (imagesLoaded === totalImages) {
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
@@ -646,7 +665,7 @@
             obstacleInterval: 3000,
             minObstacleInterval: 1000,
             gravity: 0.8,
-            jumpPower: 15,
+            jumpPower: 18, // Увеличил силу прыжка
             isJumping: false,
             velocityY: 0,
             gameTime: 0,
@@ -657,34 +676,55 @@
             buildings: [],
             useImages: false,
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
-            touchActive: false
+            touchActive: false,
+            playerBaseY: 0 // Добавил базовую позицию игрока
         };
 
-        // Класс игрока
+        // Класс игрока с реальным прыжком
         class Player {
             constructor() {
                 this.width = 80;
                 this.height = 100;
                 this.x = 100;
-                this.y = game.groundY - this.height;
+                this.baseY = game.groundY - this.height; // Базовая позиция на земле
+                this.y = this.baseY; // Текущая позиция (меняется при прыжке)
                 this.state = 'run';
                 this.animationTimer = 0;
                 this.runFrame = 0;
+                this.jumpHeight = 150; // Максимальная высота прыжка
+                this.jumpProgress = 0; // Прогресс прыжка (0-1)
             }
 
             update() {
-                // Гравитация
-                if (this.y < game.groundY - this.height) {
-                    this.y += game.velocityY;
-                    game.velocityY += game.gravity;
+                // Гравитация и прыжок
+                if (game.isJumping) {
+                    // Анимация прыжка - параболическая траектория
+                    this.jumpProgress += 0.05;
+                    
+                    if (this.jumpProgress <= 1) {
+                        // Восходящая часть прыжка
+                        const t = this.jumpProgress;
+                        // Параболическая траектория: y = -4h * t * (t - 1), где h - максимальная высота
+                        const heightOffset = -4 * this.jumpHeight * t * (t - 1);
+                        this.y = this.baseY - heightOffset;
+                        
+                        // Меняем состояние на прыжок когда достаточно высоко
+                        if (heightOffset > 20 && this.state !== 'jump') {
+                            this.state = 'jump';
+                        }
+                    } else {
+                        // Завершение прыжка
+                        this.jumpProgress = 0;
+                        game.isJumping = false;
+                        this.state = 'run';
+                        this.y = this.baseY;
+                    }
                 } else {
-                    this.y = game.groundY - this.height;
-                    game.isJumping = false;
-                    game.velocityY = 0;
-                }
-
-                // Анимация бега
-                if (this.state === 'run') {
+                    // На земле - анимация бега
+                    this.y = this.baseY;
+                    this.state = 'run';
+                    
+                    // Анимация бега
                     this.animationTimer++;
                     if (this.animationTimer > 10) {
                         this.runFrame = this.runFrame === 0 ? 1 : 0;
@@ -698,25 +738,54 @@
                 
                 // Определяем какое изображение использовать
                 let imgToDraw;
+                let imgWidth, imgHeight;
+                
                 switch(this.state) {
                     case 'jump':
                         imgToDraw = images.player_jump;
+                        imgWidth = imageSizes.player_jump.width;
+                        imgHeight = imageSizes.player_jump.height;
                         break;
                     case 'hit':
                         imgToDraw = images.player_hit;
+                        imgWidth = imageSizes.player_hit.width;
+                        imgHeight = imageSizes.player_hit.height;
                         break;
                     case 'sad':
                         imgToDraw = images.player_sad;
+                        imgWidth = imageSizes.player_sad.width;
+                        imgHeight = imageSizes.player_sad.height;
                         break;
                     case 'run':
                     default:
                         imgToDraw = this.runFrame === 0 ? images.player_run1 : images.player_run2;
+                        imgWidth = this.runFrame === 0 ? imageSizes.player_run1.width : imageSizes.player_run2.width;
+                        imgHeight = this.runFrame === 0 ? imageSizes.player_run1.height : imageSizes.player_run2.height;
                         break;
                 }
                 
+                // Рассчитываем пропорциональные размеры
+                const scale = Math.min(this.width / imgWidth, this.height / imgHeight);
+                const drawWidth = imgWidth * scale;
+                const drawHeight = imgHeight * scale;
+                const offsetX = (this.width - drawWidth) / 2;
+                const offsetY = (this.height - drawHeight);
+                
                 // Проверяем загружено ли изображение
                 if (imgToDraw.complete && imgToDraw.naturalWidth > 0) {
-                    ctx.drawImage(imgToDraw, this.x, this.y, this.width, this.height);
+                    // Рисуем изображение с сохранением пропорций
+                    ctx.drawImage(
+                        imgToDraw, 
+                        this.x + offsetX, 
+                        this.y + offsetY, 
+                        drawWidth, 
+                        drawHeight
+                    );
+                    
+                    // Отладочная рамка (можно убрать)
+                    // ctx.strokeStyle = 'red';
+                    // ctx.lineWidth = 1;
+                    // ctx.strokeRect(this.x, this.y, this.width, this.height);
                 } else {
                     this.drawFallback();
                 }
@@ -726,9 +795,12 @@
 
             drawFallback() {
                 // Резервная отрисовка
-                ctx.fillStyle = this.state === 'hit' ? '#9e9e9e' : 
-                                this.state === 'sad' ? '#78909c' : 
-                                this.state === 'jump' ? '#42a5f5' : '#1565c0';
+                const color = this.state === 'hit' ? '#9e9e9e' : 
+                              this.state === 'sad' ? '#78909c' : 
+                              this.state === 'jump' ? '#42a5f5' : '#1565c0';
+                
+                // Тело
+                ctx.fillStyle = color;
                 ctx.fillRect(this.x, this.y + 20, this.width, this.height - 40);
                 
                 // Голова
@@ -746,8 +818,14 @@
                 // Выражение лица
                 ctx.fillStyle = '#0d47a1';
                 if (this.state === 'sad') {
+                    // Грустный рот
                     ctx.beginPath();
                     ctx.arc(this.x + this.width/2, this.y + 25, 10, 0, Math.PI);
+                    ctx.stroke();
+                } else if (this.state === 'jump') {
+                    // Улыбка при прыжке
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width/2, this.y + 30, 8, 0, Math.PI, false);
                     ctx.stroke();
                 }
                 
@@ -763,24 +841,42 @@
                 ctx.arc(this.x + this.width/2 - 8, this.y + 15, 3, 0, Math.PI * 2);
                 ctx.arc(this.x + this.width/2 + 8, this.y + 15, 3, 0, Math.PI * 2);
                 ctx.fill();
+                
+                // Руки для прыжка
+                if (this.state === 'jump') {
+                    ctx.fillStyle = color;
+                    // Левая рука вверх
+                    ctx.fillRect(this.x - 10, this.y + 30, 15, 40);
+                    // Правая рука вверх
+                    ctx.fillRect(this.x + this.width - 5, this.y + 30, 15, 40);
+                }
             }
 
             jump() {
-                if (!game.isJumping && game.running) {
+                if (!game.isJumping && game.running && this.state !== 'hit') {
                     game.isJumping = true;
-                    game.velocityY = -game.jumpPower;
+                    this.jumpProgress = 0;
                     this.state = 'jump';
                     return true;
                 }
                 return false;
+            }
+            
+            // Обновляем базовую позицию при изменении размера экрана
+            updateBasePosition() {
+                this.baseY = game.groundY - this.height;
+                if (!game.isJumping) {
+                    this.y = this.baseY;
+                }
             }
         }
 
         // Класс препятствия
         class Obstacle {
             constructor() {
-                this.width = 60;
-                this.height = 40;
+                const imgSize = imageSizes.snowpile;
+                this.width = imgSize.width;
+                this.height = imgSize.height;
                 this.x = canvas.width;
                 this.y = game.groundY - this.height;
                 this.speed = game.speed;
@@ -794,7 +890,13 @@
 
             draw() {
                 if (images.snowpile.complete && images.snowpile.naturalWidth > 0) {
-                    ctx.drawImage(images.snowpile, this.x, this.y, this.width, this.height);
+                    // Рисуем сугроб с сохранением пропорций
+                    const scale = Math.min(this.width / imageSizes.snowpile.width, 
+                                         this.height / imageSizes.snowpile.height);
+                    const drawWidth = imageSizes.snowpile.width * scale;
+                    const drawHeight = imageSizes.snowpile.height * scale;
+                    
+                    ctx.drawImage(images.snowpile, this.x, this.y, drawWidth, drawHeight);
                 } else {
                     this.drawFallback();
                 }
@@ -825,10 +927,20 @@
             }
 
             collidesWith(player) {
-                return player.x < this.x + this.width &&
-                       player.x + player.width > this.x &&
-                       player.y < this.y + this.height &&
-                       player.y + player.height > this.y;
+                // Учитываем что игрок может быть выше при прыжке
+                const playerBottom = player.y + player.height;
+                const playerTop = player.y;
+                const obstacleTop = this.y;
+                const obstacleBottom = this.y + this.height;
+                
+                // Столкновение происходит только если игрок находится на уровне сугроба
+                const horizontalCollision = player.x < this.x + this.width &&
+                                           player.x + player.width > this.x;
+                
+                const verticalCollision = playerBottom > obstacleTop && 
+                                         playerTop < obstacleBottom;
+                
+                return horizontalCollision && verticalCollision && !game.isJumping;
             }
         }
 
@@ -1090,7 +1202,7 @@
             game.obstacles.forEach((obstacle, index) => {
                 obstacle.update();
                 
-                if (obstacle.collidesWith(player) && !game.isJumping) {
+                if (obstacle.collidesWith(player)) {
                     showWordChallenge(obstacle.word);
                 }
                 
@@ -1162,6 +1274,11 @@
                 ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
             }
+            
+            // Отладочная информация о позиции игрока
+            // ctx.fillStyle = 'black';
+            // ctx.font = '12px Arial';
+            // ctx.fillText(`Y: ${Math.round(player.y)}`, player.x, player.y - 10);
         }
 
         function gameLoop() {
@@ -1191,7 +1308,7 @@
                 obstacleInterval: 3000,
                 minObstacleInterval: 1000,
                 gravity: 0.8,
-                jumpPower: 15,
+                jumpPower: 18,
                 isJumping: false,
                 velocityY: 0,
                 gameTime: 0,
@@ -1202,12 +1319,15 @@
                 buildings: game.buildings,
                 useImages: imagesLoaded === totalImages,
                 isMobile: game.isMobile,
-                touchActive: false
+                touchActive: false,
+                playerBaseY: 0
             };
             
             player.state = 'run';
-            player.y = game.groundY - player.height;
+            player.baseY = game.groundY - player.height;
+            player.y = player.baseY;
             player.x = 100;
+            player.jumpProgress = 0;
             
             updateLives();
             startScreen.style.display = 'none';
@@ -1225,11 +1345,10 @@
             gameOverScreen.style.display = 'flex';
         }
 
-        // Управление прыжком - улучшенная версия
+        // Управление прыжком
         function handleJump() {
             const jumped = player.jump();
             if (jumped && game.isMobile) {
-                // Визуальная обратная связь на мобильных
                 mobileJumpBtn.classList.add('pressed');
                 setTimeout(() => {
                     mobileJumpBtn.classList.remove('pressed');
@@ -1251,13 +1370,12 @@
             }
         });
 
-        // Управление на мобильных - улучшенное
+        // Управление на мобильных
         mobileJumpBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleJump();
         });
 
-        // Обработка touch событий
         mobileJumpBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -1280,7 +1398,7 @@
             mobileJumpBtn.classList.remove('pressed');
         }, { passive: false });
 
-        // Дополнительная область для тапа (весь экран кроме кнопок)
+        // Дополнительная область для тапа
         touchArea.addEventListener('touchstart', (e) => {
             if (game.running && !game.touchActive) {
                 e.preventDefault();
@@ -1301,10 +1419,10 @@
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             game.groundY = canvas.height * 0.7;
-            player.y = game.groundY - player.height;
+            player.updateBasePosition();
         });
 
-        // Предотвращаем стандартное поведение браузера для touch событий
+        // Предотвращаем стандартное поведение браузера
         document.addEventListener('touchmove', (e) => {
             if (game.running) {
                 e.preventDefault();
@@ -1314,7 +1432,6 @@
         // Инициализация
         updateLives();
         
-        // Если изображения не загрузились, показываем стартовый экран
         setTimeout(() => {
             if (loadingScreen.style.display !== 'none') {
                 loadingScreen.style.display = 'none';
@@ -1323,7 +1440,6 @@
             }
         }, 1000);
 
-        // Сообщение о управлении
         if (game.isMobile) {
             setTimeout(() => {
                 showMessage('Тапните по экрану или кнопке для прыжка', '#42a5f5');
