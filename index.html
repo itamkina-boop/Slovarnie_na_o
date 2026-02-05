@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -200,7 +199,7 @@
 
         #wordChallenge {
             position: absolute;
-            top: 20%; /* Плашка выше, не перекрывает персонажа */
+            top: 20%;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.98);
@@ -795,14 +794,45 @@
             {word: "ош.ломлённый", answer: "е", full: "ошеломлённый", learned: false}
         ];
 
+        // Класс для частиц анимации
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = Math.random() * 8 + 4;
+                this.speedX = Math.random() * 6 - 3;
+                this.speedY = Math.random() * 6 - 3;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.05 + 0.02;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                this.size *= 0.95;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
         // Игровые переменные
         let game = {
             running: false,
             distance: 0,
             speed: 5,
             baseSpeed: 5,
-            maxSpeed: 20,
-            acceleration: 0.0008,
+            maxSpeed: 25,
+            acceleration: 0.001,
             lives: 3,
             score: 0,
             currentWord: null,
@@ -810,7 +840,7 @@
             obstacles: [],
             lastObstacleTime: 0,
             obstacleInterval: 2500,
-            minObstacleInterval: 800,
+            minObstacleInterval: 600,
             gravity: 0.9,
             jumpPower: 18,
             jumpForward: 2.5,
@@ -827,8 +857,13 @@
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
             touchActive: false,
             playerBaseY: 0,
-            playerMaxX: 150, // Максимальная позиция игрока справа
-            playerMinX: 80   // Минимальная позиция игрока слева
+            playerMaxX: 150,
+            playerMinX: 80,
+            particles: [],
+            obstacleCollisionX: 0,
+            obstacleCollisionY: 0,
+            showCollisionEffect: false,
+            collisionEffectTimer: 0
         };
 
         // Класс игрока с прыжком вперед и вверх
@@ -836,7 +871,7 @@
             constructor() {
                 this.width = 100;
                 this.height = 125;
-                this.baseX = 100; // Базовая позиция слева
+                this.baseX = 100;
                 this.x = this.baseX;
                 this.baseY = game.groundY - this.height;
                 this.y = this.baseY;
@@ -846,7 +881,7 @@
                 this.jumpHeight = 180;
                 this.jumpProgress = 0;
                 this.jumpForwardSpeed = 0;
-                this.targetX = this.baseX; // Целевая позиция для плавного движения
+                this.targetX = this.baseX;
             }
 
             update() {
@@ -1030,8 +1065,9 @@
                 this.y = game.groundY - this.height;
                 this.speed = game.speed;
                 this.word = this.getUnlearnedWord();
-                this.showWord = true; // Флаг, нужно ли показывать слово
-                this.jumpedOver = false; // Флаг, был ли сугроб перепрыгнут
+                this.showWord = true;
+                this.jumpedOver = false;
+                this.collided = false;
             }
             
             getUnlearnedWord() {
@@ -1039,7 +1075,6 @@
                 if (unlearnedWords.length > 0) {
                     return unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)];
                 } else {
-                    // Если все слова изучены, берем случайное слово
                     return wordList[Math.floor(Math.random() * wordList.length)];
                 }
             }
@@ -1049,13 +1084,16 @@
                 this.speed = game.speed;
                 
                 // Проверяем, перепрыгнул ли игрок сугроб
-                if (!this.jumpedOver && player.hasJumpedOver(this)) {
+                if (!this.jumpedOver && !this.collided && player.hasJumpedOver(this)) {
                     this.jumpedOver = true;
-                    this.showWord = false; // Не показывать слово, если перепрыгнули
+                    this.showWord = false;
                 }
             }
 
             draw() {
+                // Не рисуем сугроб если было столкновение
+                if (this.collided) return;
+                
                 if (images.snowpile.complete && images.snowpile.naturalWidth > 0) {
                     const scale = Math.min(this.width / imageSizes.snowpile.width, 
                                          this.height / imageSizes.snowpile.height);
@@ -1068,8 +1106,8 @@
                     this.drawFallback();
                 }
                 
-                // Отображаем подсказку, если слово не изучено
-                if (!this.word.learned && this.showWord && !this.jumpedOver) {
+                // Отображаем подсказку, если слово не изучено и не перепрыгнуто
+                if (!this.word.learned && this.showWord && !this.jumpedOver && !this.collided) {
                     ctx.save();
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
                     ctx.fillRect(this.x - 10, this.y - 40, this.width + 20, 35);
@@ -1111,7 +1149,7 @@
             }
 
             collidesWith(player) {
-                if (this.jumpedOver) return false; // Если перепрыгнули, нет столкновения
+                if (this.jumpedOver || this.collided) return false;
                 
                 const playerBottom = player.y + player.height;
                 const playerTop = player.y;
@@ -1279,17 +1317,41 @@
             learnedWordsDisplay.textContent = game.learnedWords;
             wordsProgress.textContent = `📚 ${game.learnedWords}/40`;
             
-            // Проверяем победу
             if (game.learnedWords >= wordList.length && !game.allWordsLearned) {
                 game.allWordsLearned = true;
                 winGame();
             }
         }
 
-        function showWordChallenge(wordObj) {
+        function createParticleEffect(x, y, color) {
+            for(let i = 0; i < 20; i++) {
+                game.particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function updateParticles() {
+            for(let i = game.particles.length - 1; i >= 0; i--) {
+                game.particles[i].update();
+                if (game.particles[i].life <= 0) {
+                    game.particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawParticles() {
+            game.particles.forEach(particle => particle.draw());
+        }
+
+        function showWordChallenge(wordObj, obstacle) {
             game.currentWord = wordObj;
+            game.currentObstacle = obstacle;
             game.playerAnswer = [];
             player.state = 'hit';
+            
+            // Запоминаем позицию столкновения для эффекта
+            game.obstacleCollisionX = obstacle.x + obstacle.width/2;
+            game.obstacleCollisionY = obstacle.y + obstacle.height/2;
+            obstacle.collided = true;
             
             const parts = wordObj.word.split('.');
             wordDisplay.innerHTML = '';
@@ -1353,6 +1415,11 @@
                     span.classList.add('correct-letter');
                 });
                 
+                // Создаем эффект разлетающихся частиц
+                createParticleEffect(game.obstacleCollisionX, game.obstacleCollisionY, '#4caf50');
+                game.showCollisionEffect = true;
+                game.collisionEffectTimer = 30;
+                
                 setTimeout(() => {
                     showMessage('Правильно! ✓', '#388e3c');
                     wordChallenge.style.display = 'none';
@@ -1361,7 +1428,7 @@
                     
                     // Находим и удаляем препятствие с этим словом
                     const obstacleIndex = game.obstacles.findIndex(obs => 
-                        obs.word === game.currentWord && obs.showWord
+                        obs === game.currentObstacle
                     );
                     if (obstacleIndex !== -1) {
                         game.obstacles.splice(obstacleIndex, 1);
@@ -1370,7 +1437,7 @@
                     game.score += 100;
                     
                     // Увеличиваем скорость после каждого правильного ответа
-                    game.speed = Math.min(game.maxSpeed, game.speed + 0.3);
+                    game.speed = Math.min(game.maxSpeed, game.speed + 0.5);
                     updateSpeedIndicator();
                 }, 500);
             } else {
@@ -1402,7 +1469,7 @@
                 
                 game.obstacleInterval = Math.max(
                     game.minObstacleInterval,
-                    game.obstacleInterval - 30
+                    game.obstacleInterval - 20
                 );
             }
         }
@@ -1420,6 +1487,14 @@
             updateSpeedIndicator();
             
             player.update();
+            updateParticles();
+            
+            if (game.showCollisionEffect) {
+                game.collisionEffectTimer--;
+                if (game.collisionEffectTimer <= 0) {
+                    game.showCollisionEffect = false;
+                }
+            }
             
             game.obstacles.forEach((obstacle, index) => {
                 obstacle.update();
@@ -1430,9 +1505,9 @@
                     obstacle.showWord = false;
                 }
                 
-                // Столкновение только если не перепрыгнули
+                // Столкновение только если не перепрыгнули и не было столкновения
                 if (obstacle.collidesWith(player) && obstacle.showWord) {
-                    showWordChallenge(obstacle.word);
+                    showWordChallenge(obstacle.word, obstacle);
                 }
                 
                 // Удаляем препятствия за экраном
@@ -1493,6 +1568,7 @@
             
             game.obstacles.forEach(obstacle => obstacle.draw());
             player.draw();
+            drawParticles();
             
             ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
             for(let i = 0; i < 80; i++) {
@@ -1525,16 +1601,17 @@
                 distance: 0,
                 speed: 5,
                 baseSpeed: 5,
-                maxSpeed: 20,
-                acceleration: 0.0008,
+                maxSpeed: 25,
+                acceleration: 0.001,
                 lives: 3,
                 score: 0,
                 currentWord: null,
+                currentObstacle: null,
                 playerAnswer: [],
                 obstacles: [],
                 lastObstacleTime: 0,
                 obstacleInterval: 2500,
-                minObstacleInterval: 800,
+                minObstacleInterval: 600,
                 gravity: 0.9,
                 jumpPower: 18,
                 jumpForward: 2.5,
@@ -1552,7 +1629,12 @@
                 touchActive: false,
                 playerBaseY: 0,
                 playerMaxX: 150,
-                playerMinX: 80
+                playerMinX: 80,
+                particles: [],
+                obstacleCollisionX: 0,
+                obstacleCollisionY: 0,
+                showCollisionEffect: false,
+                collisionEffectTimer: 0
             };
             
             player.state = 'run';
@@ -1593,6 +1675,11 @@
             game.allWordsLearned = false;
             winScreen.style.display = 'none';
             gameScreen.style.display = 'block';
+            
+            // Увеличиваем скорость после победы
+            game.speed = Math.min(game.maxSpeed, game.speed + 2);
+            updateSpeedIndicator();
+            
             gameLoop();
         }
 
