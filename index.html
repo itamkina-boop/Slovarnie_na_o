@@ -3,38 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Снежный спринтер: Гласные</title>
+    <title>Зимняя грамматика</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0e17;
-            color: white;
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1a237e 0%, #283593 30%, #3949ab 60%, #5c6bc0 100%);
+            overflow: hidden;
+            touch-action: manipulation;
         }
 
-        #game-container {
+        #gameContainer {
+            position: relative;
             width: 100%;
             max-width: 800px;
             height: 600px;
-            position: relative;
             overflow: hidden;
-            border-radius: 16px;
-            background: #0f172a;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(180deg, #bbdefb 0%, #e3f2fd 30%, #f3e5f5 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .screen {
+        #startScreen, #gameOverScreen {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -42,682 +41,1030 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 40px;
-            z-index: 10;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 100;
+            border-radius: 20px;
         }
 
-        .hidden {
-            display: none !important;
+        #gameOverScreen {
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
         }
 
         h1 {
-            font-size: 3em;
-            font-weight: 800;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #1565c0;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #bbdefb;
             text-align: center;
         }
 
         h2 {
-            font-size: 2em;
+            color: #0d47a1;
+            font-size: 2.5em;
             margin-bottom: 20px;
-            color: #f1f5f9;
-        }
-
-        p {
-            color: #94a3b8;
-            line-height: 1.6;
-            margin-bottom: 15px;
             text-align: center;
         }
 
+        .instruction {
+            color: #546e7a;
+            font-size: 1.2em;
+            text-align: center;
+            max-width: 80%;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
         .btn {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(180deg, #42a5f5 0%, #1565c0 100%);
             color: white;
             border: none;
-            padding: 16px 40px;
-            font-size: 1.2em;
-            font-weight: 600;
-            border-radius: 12px;
+            padding: 18px 45px;
+            font-size: 1.5em;
+            border-radius: 50px;
             cursor: pointer;
-            margin-top: 30px;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.4);
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(21, 101, 192, 0.6);
         }
 
-        .btn-secondary {
-            background: #475569;
-            margin-top: 15px;
+        .btn:active {
+            transform: translateY(1px);
         }
 
-        #game-canvas {
+        #gameScreen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: none;
+        }
+
+        #gameCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
         }
 
-        .game-ui {
+        #ui {
             position: absolute;
             top: 20px;
             left: 0;
             width: 100%;
             padding: 0 20px;
-            z-index: 5;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 10;
         }
 
-        .ui-panel {
-            background: rgba(15, 23, 42, 0.8);
-            padding: 12px 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+        #distance {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1565c0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #lives {
             display: flex;
-            align-items: center;
             gap: 10px;
         }
 
-        .life {
-            width: 12px;
-            height: 12px;
-            background: #ef4444;
+        .heart {
+            width: 40px;
+            height: 40px;
+            background-color: #f44336;
+            position: relative;
+            transform: rotate(45deg);
+            box-shadow: 0 3px 8px rgba(244, 67, 54, 0.4);
+        }
+
+        .heart:before,
+        .heart:after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            background-color: #f44336;
             border-radius: 50%;
-            display: inline-block;
-        }
-
-        .life.lost {
-            background: #64748b;
-        }
-
-        #word-display {
             position: absolute;
-            top: 80px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 2em;
-            font-weight: 700;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            z-index: 5;
         }
 
-        .vowel-buttons {
+        .heart:before {
+            top: -20px;
+            left: 0;
+        }
+
+        .heart:after {
+            top: 0;
+            left: -20px;
+        }
+
+        #wordChallenge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 20;
+            display: none;
+            min-width: 300px;
+        }
+
+        #wordDisplay {
+            font-size: 2.5em;
+            color: #0d47a1;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+        }
+
+        #letterButtons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .letterBtn {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(180deg, #42a5f5 0%, #1565c0 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
+        }
+
+        .letterBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(21, 101, 192, 0.5);
+        }
+
+        .letterBtn:active {
+            transform: scale(0.95);
+        }
+
+        #submitBtn {
+            background: linear-gradient(180deg, #66bb6a 0%, #388e3c 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.3em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            font-weight: bold;
+        }
+
+        #submitBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(76, 175, 80, 0.6);
+        }
+
+        #message {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 5;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 90%;
-        }
-
-        .vowel-btn {
-            width: 50px;
-            height: 50px;
-            background: rgba(30, 41, 59, 0.9);
-            border: 2px solid #475569;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5em;
-            font-weight: 700;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            display: none;
+            z-index: 30;
         }
 
-        .vowel-btn:hover {
-            background: #3b82f6;
-            transform: scale(1.1);
+        .mobile-controls {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            justify-content: center;
+            gap: 30px;
+            z-index: 5;
         }
 
-        .instructions {
-            margin: 30px 0;
-            text-align: left;
-        }
-
-        .instruction-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 12px;
-            color: #cbd5e1;
-        }
-
-        .sad-character {
-            width: 100px;
-            height: 100px;
-            background: #475569;
+        .jump-btn {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #42a5f5 0%, #1565c0 100%);
             border-radius: 50%;
-            margin-bottom: 30px;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(21, 101, 192, 0.5);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+        .jump-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.3);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            #gameContainer {
+                height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+
+            #startScreen, #gameOverScreen {
+                border-radius: 0;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            .instruction {
+                font-size: 1em;
+            }
+
+            .mobile-controls {
+                display: flex;
+            }
+
+            #wordChallenge {
+                width: 90%;
+                min-width: auto;
+            }
+
+            #wordDisplay {
+                font-size: 2em;
+            }
+
+            .letterBtn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+            }
+        }
+
+        @media (max-height: 700px) {
+            #gameContainer {
+                height: 100vh;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- Стартовый экран -->
-        <div id="start-screen" class="screen">
-            <h1>СНЕЖНЫЙ СПРИНТЕР</h1>
-            <p class="subtitle">Беги, прыгай и заполняй пропущенные гласные!</p>
-            
-            <div class="instructions">
-                <div class="instruction-item">
-                    <strong>ПРОБЕЛ / ТАП</strong> — прыжок через сугроб
-                </div>
-                <div class="instruction-item">
-                    <strong>СУГРОБ</strong> — появится слово с пропущенными буквами
-                </div>
-                <div class="instruction-item">
-                    <strong>ГЛАСНЫЕ</strong> — выбери правильную букву на клавиатуре или тапом
-                </div>
-                <div class="instruction-item">
-                    <strong>ОШИБКА</strong> = потеря жизни • <strong>3 жизни</strong> всего
-                </div>
-            </div>
-            
-            <button id="start-btn" class="btn">НАЧАТЬ ИГРУ</button>
-            <p style="margin-top: 20px; color: #64748b; font-size: 0.9em;">Нажми ПРОБЕЛ для прыжка • Набирай буквы на клавиатуре</p>
+    <div id="gameContainer">
+        <div id="startScreen">
+            <h1>❄️ Зимняя грамматика ❄️</h1>
+            <p class="instruction">Помоги персонажу пробежать через зимний город!<br>Прыгай через сугробы (Space/Тап) и заполняй пропуски в словах.</p>
+            <p class="instruction">Используй гласные буквы для заполнения пропусков.<br>У тебя есть 3 жизни. Будь внимателен!</p>
+            <button class="btn" id="startBtn">НАЧАТЬ ИГРУ</button>
         </div>
 
-        <!-- Игровой холст -->
-        <canvas id="game-canvas"></canvas>
-        
-        <!-- Игровой интерфейс -->
-        <div id="game-ui" class="game-ui hidden">
-            <div class="ui-panel">
-                <span style="color: #94a3b8;">Жизни:</span>
-                <div class="life"></div>
-                <div class="life"></div>
-                <div class="life"></div>
+        <div id="gameScreen">
+            <canvas id="gameCanvas"></canvas>
+            <div id="ui">
+                <div id="distance">📏 0 м</div>
+                <div id="lives">
+                    <div class="heart"></div>
+                    <div class="heart"></div>
+                    <div class="heart"></div>
+                </div>
             </div>
-            
-            <div class="ui-panel">
-                <span id="distance">0</span> м
+            <div id="wordChallenge">
+                <div id="wordDisplay"></div>
+                <div id="letterButtons"></div>
+                <button id="submitBtn">ПРОВЕРИТЬ</button>
+            </div>
+            <div class="mobile-controls">
+                <button class="jump-btn" id="mobileJumpBtn">ПРЫГОК</button>
             </div>
         </div>
 
-        <!-- Отображение слова -->
-        <div id="word-display" class="hidden"></div>
-
-        <!-- Кнопки гласных -->
-        <div id="vowel-buttons" class="vowel-buttons hidden"></div>
-
-        <!-- Экран Game Over -->
-        <div id="game-over-screen" class="screen hidden">
-            <div class="sad-character"></div>
-            <h2>ИГРА ОКОНЧЕНА</h2>
-            <p>Дистанция: <span id="final-distance">0</span> метров</p>
-            <p>Правильных слов: <span id="words-count">0</span></p>
-            <p>Ошибок: <span id="mistakes-count">0</span></p>
-            <button id="restart-btn" class="btn">ИГРАТЬ СНОВА</button>
-            <button id="menu-btn" class="btn btn-secondary">В МЕНЮ</button>
+        <div id="gameOverScreen">
+            <h2>Игра окончена!</h2>
+            <p class="instruction" id="finalScore">Вы пробежали: 0 метров</p>
+            <p class="instruction">Попробуйте еще раз и улучшите свой результат!</p>
+            <button class="btn" id="restartBtn">ИГРАТЬ СНОВА</button>
         </div>
+
+        <div id="message"></div>
     </div>
 
     <script>
-        // Слова для игры (сокращённый список для теста)
-        const wordList = {
-          Вот готовый список слов в формате для JavaScript кода:
+        // Инициализация переменных
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const distanceDisplay = document.getElementById('distance');
+        const wordChallenge = document.getElementById('wordChallenge');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const letterButtons = document.getElementById('letterButtons');
+        const submitBtn = document.getElementById('submitBtn');
+        const message = document.getElementById('message');
+        const mobileJumpBtn = document.getElementById('mobileJumpBtn');
 
-```javascript
-const wordList = {
-    "нав_ждение": "и",
-    "нас_комые": "е",
-    "недос_гаемый": "я",
-    "н_велла": "о",
-    "об_яние": "а",
-    "об_ятельный": "а",
-    "об_тать": "и",
-    "об_татель": "и",
-    "обн_ружить": "а",
-    "об_няние": "о",
-    "об_нятельный": "о",
-    "об_рона": "о",
-    "об_ронять": "о",
-    "од_леть": "о",
-    "оз_рной": "о",
-    "оз_рничать": "о",
-    "оз_рник": "о",
-    "оп_кун": "е",
-    "оп_кунский": "е",
-    "опт_мист": "и",
-    "опт_мистичный": "и",
-    "опт_мизм": "и",
-    "ор_нж_рея": "а,е",
-    "_рбита": "о",
-    "_рбитальный": "о",
-    "орг_низовать": "а",
-    "орг_низация": "а",
-    "ор_г_нальный": "и,и",
-    "ор_ентир": "и",
-    "ор_ентировать": "и",
-    "ор_ентироваться": "и",
-    "ор_ентация": "и",
-    "_рнамент": "о",
-    "ост_рожный": "о",
-    "ост_рожность": "о",
-    "оф_цер": "и",
-    "оф_церский": "и",
-    "ош_ломить": "е",
-    "ош_ломительный": "е",
-    "ош_ломлённый": "е"
-};
+        // Настройка холста
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
 
-        };
+        // Слова для игры
+        const wordList = [
+            {word: "нав.ждение", answer: "а", full: "наваждение"},
+            {word: "нас.комые", answer: "е", full: "насекомые"},
+            {word: "недос.гаемый", answer: "я", full: "недосягаемый"},
+            {word: "н.велла", answer: "о", full: "новелла"},
+            {word: "об.яние", answer: "а", full: "обаяние"},
+            {word: "об.ятельный", answer: "а", full: "обаятельный"},
+            {word: "об.тать", answer: "и", full: "обитать"},
+            {word: "об.татель", answer: "и", full: "обитатель"},
+            {word: "обн.ружить", answer: "а", full: "обнаружить"},
+            {word: "об.няние", answer: "о", full: "обоняние"},
+            {word: "об.нятельный", answer: "о", full: "обонятельный"},
+            {word: "об.рона", answer: "о", full: "оборона"},
+            {word: "об.ронять", answer: "о", full: "оборонять"},
+            {word: "од.леть", answer: "о", full: "одолеть"},
+            {word: "оз.рной", answer: "о", full: "озорной"},
+            {word: "оз.рничать", answer: "о", full: "озорничать"},
+            {word: "оз.рник", answer: "о", full: "озорник"},
+            {word: "оп.кун", answer: "е", full: "опекун"},
+            {word: "оп.кунский", answer: "е", full: "опекунский"},
+            {word: "опт.мист", answer: "и", full: "оптимист"},
+            {word: "опт.мистичный", answer: "и", full: "оптимистичный"},
+            {word: "опт.мизм", answer: "и", full: "оптимизм"},
+            {word: "ор.нж.рея", answer: "а,е", full: "оранжерея"},
+            {word: ".рбита", answer: "о", full: "орбита"},
+            {word: ".рбитальный", answer: "о", full: "орбитальный"},
+            {word: "орг.низовать", answer: "а", full: "организовать"},
+            {word: "орг.низация", answer: "а", full: "организация"},
+            {word: "ор.г.нальный", answer: "и,и", full: "оригинальный"},
+            {word: "ор.ентир", answer: "и", full: "ориентир"},
+            {word: "ор.ентировать", answer: "и", full: "ориентировать"},
+            {word: "ор.ентироваться", answer: "и", full: "ориентироваться"},
+            {word: "ор.ентация", answer: "и", full: "ориентация"},
+            {word: ".рнамент", answer: "о", full: "орнамент"},
+            {word: "ост.рожный", answer: "о", full: "осторожный"},
+            {word: "ост.рожность", answer: "о", full: "осторожность"},
+            {word: "оф.цер", answer: "и", full: "офицер"},
+            {word: "оф.церский", answer: "и", full: "офицерский"},
+            {word: "ош.ломить", answer: "е", full: "ошеломить"},
+            {word: "ош.ломительный", answer: "е", full: "ошеломительный"},
+            {word: "ош.ломлённый", answer: "е", full: "ошеломлённый"}
+        ];
 
         // Игровые переменные
-        let canvas, ctx;
-        let gameActive = false;
-        let gamePaused = false;
-        let distance = 0;
-        let speed = 5;
-        let lives = 3;
-        let score = 0;
-        let mistakes = 0;
-        let currentWord = '';
-        let currentAnswer = '';
-        let currentTaskActive = false;
+        let game = {
+            running: false,
+            distance: 0,
+            speed: 5,
+            baseSpeed: 5,
+            maxSpeed: 15,
+            acceleration: 0.0005,
+            lives: 3,
+            score: 0,
+            currentWord: null,
+            playerAnswer: [],
+            obstacles: [],
+            lastObstacleTime: 0,
+            obstacleInterval: 3000,
+            minObstacleInterval: 1000,
+            gravity: 0.8,
+            jumpPower: 15,
+            isJumping: false,
+            velocityY: 0,
+            gameTime: 0,
+            playerState: 'run', // run, jump, hit, sad
+            animationFrame: 0,
+            groundY: canvas.height * 0.7,
+            clouds: [],
+            buildings: []
+        };
 
-        // Объекты игры
-        let player = { x: 100, y: 300, width: 60, height: 80, jumping: false, vy: 0 };
-        let obstacles = [];
-        let clouds = [];
-        let stars = [];
-
-        // Изображения (с fallback)
-        const images = {};
-        let imagesLoaded = false;
-
-        // DOM элементы
-        const startScreen = document.getElementById('start-screen');
-        const gameUI = document.getElementById('game-ui');
-        const wordDisplay = document.getElementById('word-display');
-        const vowelButtons = document.getElementById('vowel-buttons');
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const distanceElement = document.getElementById('distance');
-        const finalDistanceElement = document.getElementById('final-distance');
-        const wordsCountElement = document.getElementById('words-count');
-        const mistakesCountElement = document.getElementById('mistakes-count');
-
-        // Инициализация игры
-        function init() {
-            canvas = document.getElementById('game-canvas');
-            ctx = canvas.getContext('2d');
-            
-            // Устанавливаем размеры
-            canvas.width = 800;
-            canvas.height = 600;
-            
-            // Создаём звёзды для фона
-            for (let i = 0; i < 100; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * 200,
-                    size: Math.random() * 2 + 1,
-                    brightness: Math.random() * 0.5 + 0.5
-                });
+        // Класс игрока
+        class Player {
+            constructor() {
+                this.width = 80;
+                this.height = 100;
+                this.x = 100;
+                this.y = game.groundY - this.height;
+                this.state = 'run';
+                this.animationTimer = 0;
+                this.runFrame = 0;
             }
-            
-            // Создаём облака
-            for (let i = 0; i < 5; i++) {
-                clouds.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * 150 + 50,
-                    speed: Math.random() * 0.5 + 0.5,
-                    width: Math.random() * 100 + 50,
-                    height: 30
-                });
-            }
-            
-            setupEventListeners();
-            createVowelButtons();
-            
-            // Начинаем игровой цикл
-            requestAnimationFrame(gameLoop);
-        }
 
-        // Простая загрузка изображений с немедленным стартом
-        function loadImages() {
-            // Список необходимых изображений
-            const imageFiles = ['player_run1.png', 'snowpile.png'];
-            
-            imageFiles.forEach(filename => {
-                const img = new Image();
-                img.src = filename;
-                images[filename] = img;
-            });
-            
-            // Игра запускается сразу, не ждём загрузки изображений
-            imagesLoaded = true;
-        }
+            update() {
+                // Гравитация
+                if (this.y < game.groundY - this.height) {
+                    this.y += game.velocityY;
+                    game.velocityY += game.gravity;
+                } else {
+                    this.y = game.groundY - this.height;
+                    game.isJumping = false;
+                    game.velocityY = 0;
+                }
 
-        function setupEventListeners() {
-            // Кнопки
-            document.getElementById('start-btn').addEventListener('click', startGame);
-            document.getElementById('restart-btn').addEventListener('click', startGame);
-            document.getElementById('menu-btn').addEventListener('click', showMenu);
-            
-            // Управление
-            document.addEventListener('keydown', (e) => {
-                if (e.code === 'Space') {
-                    e.preventDefault();
-                    if (gameActive && !gamePaused) {
-                        jump();
-                    } else if (!gameActive) {
-                        startGame();
+                // Анимация бега
+                if (this.state === 'run') {
+                    this.animationTimer++;
+                    if (this.animationTimer > 10) {
+                        this.runFrame = this.runFrame === 0 ? 1 : 0;
+                        this.animationTimer = 0;
                     }
+                }
+            }
+
+            draw() {
+                ctx.save();
+                
+                // Тело персонажа (силуэт)
+                ctx.fillStyle = '#1565c0';
+                ctx.fillRect(this.x, this.y + 20, this.width, this.height - 40);
+                
+                // Голова
+                ctx.fillStyle = '#ffccbc';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2, this.y + 20, 25, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Шапка
+                ctx.fillStyle = '#d32f2f';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2, this.y + 10, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ff5722';
+                ctx.fillRect(this.x + this.width/2 - 15, this.y + 10, 30, 15);
+                
+                // Ноги для анимации бега
+                ctx.fillStyle = '#0d47a1';
+                if (this.state === 'run') {
+                    const legOffset = this.runFrame === 0 ? 10 : -10;
+                    ctx.fillRect(this.x + 20, this.y + this.height - 20, 15, 30 + legOffset);
+                    ctx.fillRect(this.x + 45, this.y + this.height - 20, 15, 30 - legOffset);
+                } else {
+                    ctx.fillRect(this.x + 20, this.y + this.height - 20, 15, 30);
+                    ctx.fillRect(this.x + 45, this.y + this.height - 20, 15, 30);
                 }
                 
-                // Ввод букв во время задания
-                if (currentTaskActive && !gamePaused) {
-                    const key = e.key.toUpperCase();
-                    const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
-                    if (vowels.includes(key)) {
-                        checkAnswer(key);
+                // Руки
+                ctx.fillStyle = '#1565c0';
+                if (game.isJumping) {
+                    ctx.fillRect(this.x - 10, this.y + 40, 15, 40);
+                    ctx.fillRect(this.x + this.width - 5, this.y + 40, 15, 40);
+                } else {
+                    const armOffset = this.runFrame === 0 ? 5 : -5;
+                    ctx.fillRect(this.x - 5, this.y + 40 + armOffset, 15, 40);
+                    ctx.fillRect(this.x + this.width - 10, this.y + 40 - armOffset, 15, 40);
+                }
+                
+                // Глаза
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2 - 8, this.y + 15, 5, 0, Math.PI * 2);
+                ctx.arc(this.x + this.width/2 + 8, this.y + 15, 5, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#0d47a1';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2 - 8, this.y + 15, 3, 0, Math.PI * 2);
+                ctx.arc(this.x + this.width/2 + 8, this.y + 15, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+
+            jump() {
+                if (!game.isJumping && game.running) {
+                    game.isJumping = true;
+                    game.velocityY = -game.jumpPower;
+                    this.state = 'jump';
+                }
+            }
+        }
+
+        // Класс препятствия
+        class Obstacle {
+            constructor() {
+                this.width = 60;
+                this.height = 40;
+                this.x = canvas.width;
+                this.y = game.groundY - this.height;
+                this.speed = game.speed;
+                this.word = wordList[Math.floor(Math.random() * wordList.length)];
+            }
+
+            update() {
+                this.x -= this.speed;
+                this.speed = game.speed;
+            }
+
+            draw() {
+                // Сугроб
+                ctx.save();
+                ctx.fillStyle = '#e1f5fe';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/2, this.y, this.width/2, 0, Math.PI);
+                ctx.fill();
+                
+                ctx.fillStyle = '#b3e5fc';
+                ctx.beginPath();
+                ctx.arc(this.x + this.width/4, this.y + 5, this.width/3, 0, Math.PI);
+                ctx.arc(this.x + 3*this.width/4, this.y + 5, this.width/3, 0, Math.PI);
+                ctx.fill();
+                
+                // Снежинки на сугробе
+                ctx.fillStyle = 'white';
+                for(let i = 0; i < 5; i++) {
+                    const snowX = this.x + i * this.width/5;
+                    const snowY = this.y + 10 - Math.sin(i) * 3;
+                    ctx.beginPath();
+                    ctx.arc(snowX, snowY, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            collidesWith(player) {
+                return player.x < this.x + this.width &&
+                       player.x + player.width > this.x &&
+                       player.y < this.y + this.height &&
+                       player.y + player.height > this.y;
+            }
+        }
+
+        // Класс облака
+        class Cloud {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * 150 + 20;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.size = Math.random() * 40 + 60;
+            }
+
+            update() {
+                this.x -= this.speed;
+                if (this.x < -this.size) {
+                    this.x = canvas.width + this.size;
+                    this.y = Math.random() * 150 + 20;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                
+                // Рисуем пушистое облако
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 0.3, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.3, this.y - this.size * 0.1, this.size * 0.4, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.6, this.y, this.size * 0.35, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.3, this.y + this.size * 0.2, this.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+
+        // Класс здания
+        class Building {
+            constructor(x) {
+                this.x = x;
+                this.width = Math.random() * 100 + 80;
+                this.height = Math.random() * 200 + 150;
+                this.y = game.groundY - this.height;
+                this.color = `hsl(${200 + Math.random() * 40}, 70%, ${60 + Math.random() * 20}%)`;
+                this.windows = [];
+                
+                // Создаем окна
+                for(let i = 0; i < Math.floor(this.width/30); i++) {
+                    for(let j = 0; j < Math.floor(this.height/40); j++) {
+                        if(Math.random() > 0.3) {
+                            this.windows.push({
+                                x: i * 30 + 10,
+                                y: j * 40 + 10,
+                                lit: Math.random() > 0.5
+                            });
+                        }
                     }
                 }
-            });
-            
-            // Тапы
-            canvas.addEventListener('click', (e) => {
-                if (gameActive && !gamePaused) {
-                    jump();
-                }
-            });
-            
-            // Тапы по буквам
-            vowelButtons.addEventListener('click', (e) => {
-                if (e.target.classList.contains('vowel-btn') && currentTaskActive) {
-                    checkAnswer(e.target.textContent);
-                }
-            });
-        }
-
-        function createVowelButtons() {
-            const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
-            vowelButtons.innerHTML = '';
-            
-            vowels.forEach(vowel => {
-                const btn = document.createElement('div');
-                btn.className = 'vowel-btn';
-                btn.textContent = vowel;
-                vowelButtons.appendChild(btn);
-            });
-        }
-
-        function startGame() {
-            gameActive = true;
-            gamePaused = false;
-            distance = 0;
-            speed = 5;
-            lives = 3;
-            score = 0;
-            mistakes = 0;
-            
-            player = { x: 100, y: 300, width: 60, height: 80, jumping: false, vy: 0 };
-            obstacles = [];
-            currentTaskActive = false;
-            
-            startScreen.classList.add('hidden');
-            gameOverScreen.classList.add('hidden');
-            gameUI.classList.remove('hidden');
-            wordDisplay.classList.add('hidden');
-            vowelButtons.classList.add('hidden');
-            
-            updateLives();
-            updateDistance();
-        }
-
-        function showMenu() {
-            gameOverScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
-        }
-
-        function jump() {
-            if (!player.jumping) {
-                player.jumping = true;
-                player.vy = -15;
             }
+
+            update() {
+                this.x -= game.speed * 0.5;
+                if (this.x < -this.width) {
+                    this.x = canvas.width;
+                    this.width = Math.random() * 100 + 80;
+                    this.height = Math.random() * 200 + 150;
+                    this.y = game.groundY - this.height;
+                    this.color = `hsl(${200 + Math.random() * 40}, 70%, ${60 + Math.random() * 20}%)`;
+                    
+                    // Обновляем окна
+                    this.windows = [];
+                    for(let i = 0; i < Math.floor(this.width/30); i++) {
+                        for(let j = 0; j < Math.floor(this.height/40); j++) {
+                            if(Math.random() > 0.3) {
+                                this.windows.push({
+                                    x: i * 30 + 10,
+                                    y: j * 40 + 10,
+                                    lit: Math.random() > 0.5
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            draw() {
+                ctx.save();
+                
+                // Здание
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // Крыша
+                ctx.fillStyle = '#37474f';
+                ctx.beginPath();
+                ctx.moveTo(this.x - 5, this.y);
+                ctx.lineTo(this.x + this.width/2, this.y - 20);
+                ctx.lineTo(this.x + this.width + 5, this.y);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Окна
+                this.windows.forEach(window => {
+                    ctx.fillStyle = window.lit ? '#fff59d' : '#546e7a';
+                    ctx.fillRect(this.x + window.x, this.y + window.y, 15, 25);
+                    
+                    if(window.lit) {
+                        ctx.fillStyle = '#ffd54f';
+                        ctx.fillRect(this.x + window.x + 2, this.y + window.y + 2, 11, 21);
+                    }
+                });
+                
+                ctx.restore();
+            }
+        }
+
+        // Создаем игровые объекты
+        const player = new Player();
+
+        // Инициализация облаков
+        for(let i = 0; i < 8; i++) {
+            game.clouds.push(new Cloud());
+        }
+
+        // Инициализация зданий
+        let buildingX = 0;
+        while(buildingX < canvas.width + 500) {
+            game.buildings.push(new Building(buildingX));
+            buildingX += Math.random() * 200 + 150;
+        }
+
+        // Функции игры
+        function showMessage(text, color = '#333') {
+            message.textContent = text;
+            message.style.color = color;
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 2000);
         }
 
         function updateLives() {
-            const livesElements = document.querySelectorAll('.life');
-            livesElements.forEach((life, index) => {
-                life.classList.toggle('lost', index >= lives);
+            const hearts = document.querySelectorAll('.heart');
+            hearts.forEach((heart, index) => {
+                heart.style.opacity = index < game.lives ? '1' : '0.3';
             });
         }
 
-        function updateDistance() {
-            distanceElement.textContent = Math.floor(distance);
+        function showWordChallenge(wordObj) {
+            game.currentWord = wordObj;
+            game.playerAnswer = [];
+            
+            // Разделяем слово на части
+            const parts = wordObj.word.split('.');
+            wordDisplay.innerHTML = '';
+            
+            parts.forEach((part, index) => {
+                const span = document.createElement('span');
+                span.textContent = part;
+                wordDisplay.appendChild(span);
+                
+                if (index < parts.length - 1) {
+                    const inputSpan = document.createElement('span');
+                    inputSpan.className = 'input-letter';
+                    inputSpan.textContent = '_';
+                    inputSpan.style.color = '#f44336';
+                    inputSpan.style.margin = '0 2px';
+                    wordDisplay.appendChild(inputSpan);
+                }
+            });
+            
+            // Создаем кнопки с гласными буквами
+            letterButtons.innerHTML = '';
+            const vowels = ['А', 'Е', 'Ё', 'И', 'О', 'У', 'Ы', 'Э', 'Ю', 'Я'];
+            
+            vowels.forEach(vowel => {
+                const btn = document.createElement('button');
+                btn.className = 'letterBtn';
+                btn.textContent = vowel;
+                btn.onclick = () => selectLetter(vowel.toLowerCase());
+                letterButtons.appendChild(btn);
+            });
+            
+            wordChallenge.style.display = 'block';
+            game.running = false;
         }
 
-        function showWordTask() {
-            const words = Object.keys(wordList);
-            currentWord = words[Math.floor(Math.random() * words.length)];
-            currentAnswer = wordList[currentWord].toUpperCase();
-            currentTaskActive = true;
-            gamePaused = true;
+        function selectLetter(letter) {
+            const inputSpans = document.querySelectorAll('.input-letter');
             
-            // Показываем слово с пропусками
-            let displayWord = '';
-            for (let i = 0; i < currentWord.length; i++) {
-                if (currentWord[i] === '_') {
-                    displayWord += '<span class="blank">?</span>';
-                } else {
-                    displayWord += currentWord[i];
+            for(let i = 0; i < inputSpans.length; i++) {
+                if(inputSpans[i].textContent === '_') {
+                    inputSpans[i].textContent = letter;
+                    game.playerAnswer[i] = letter;
+                    break;
                 }
             }
-            
-            wordDisplay.innerHTML = displayWord;
-            wordDisplay.classList.remove('hidden');
-            vowelButtons.classList.remove('hidden');
         }
 
-        function checkAnswer(letter) {
-            if (letter === currentAnswer) {
-                // Правильный ответ
-                score++;
-                hideWordTask();
-                setTimeout(() => {
-                    gamePaused = false;
-                }, 500);
+        function checkAnswer() {
+            const answer = game.currentWord.answer;
+            const userAnswer = game.playerAnswer.join(',');
+            
+            if(userAnswer === answer) {
+                showMessage('Правильно! ✓', '#388e3c');
+                wordChallenge.style.display = 'none';
+                game.running = true;
+                
+                // Удаляем препятствие, которое вызвало вопрос
+                game.obstacles.shift();
+                
+                // Увеличиваем счет
+                game.score += 100;
             } else {
-                // Неправильный ответ
-                mistakes++;
-                lives--;
+                game.lives--;
                 updateLives();
                 
-                // Эффект ошибки
-                document.body.style.backgroundColor = '#7f1d1d';
-                setTimeout(() => {
-                    document.body.style.backgroundColor = '';
-                }, 200);
-                
-                if (lives <= 0) {
-                    endGame();
+                if(game.lives <= 0) {
+                    gameOver();
+                    showMessage(`Правильно: ${game.currentWord.full}`, '#f44336');
                 } else {
-                    hideWordTask();
-                    setTimeout(() => {
-                        gamePaused = false;
-                    }, 800);
+                    showMessage(`Ошибка! Правильно: ${game.currentWord.full}`, '#f44336');
+                    wordChallenge.style.display = 'none';
+                    game.running = true;
+                    game.obstacles.shift();
                 }
             }
         }
 
-        function hideWordTask() {
-            currentTaskActive = false;
-            wordDisplay.classList.add('hidden');
-            vowelButtons.classList.add('hidden');
+        function spawnObstacle() {
+            const now = Date.now();
+            if (now - game.lastObstacleTime > game.obstacleInterval && game.running) {
+                game.obstacles.push(new Obstacle());
+                game.lastObstacleTime = now;
+                
+                // Уменьшаем интервал между препятствиями
+                game.obstacleInterval = Math.max(
+                    game.minObstacleInterval,
+                    game.obstacleInterval - 50
+                );
+            }
         }
 
-        function endGame() {
-            gameActive = false;
-            finalDistanceElement.textContent = Math.floor(distance);
-            wordsCountElement.textContent = score;
-            mistakesCountElement.textContent = mistakes;
+        function updateGame() {
+            if (!game.running) return;
             
-            setTimeout(() => {
-                gameUI.classList.add('hidden');
-                gameOverScreen.classList.remove('hidden');
-            }, 1000);
+            // Обновляем дистанцию и скорость
+            game.distance += game.speed / 100;
+            game.speed = Math.min(
+                game.maxSpeed,
+                game.baseSpeed + game.distance * game.acceleration
+            );
+            
+            distanceDisplay.textContent = `📏 ${Math.floor(game.distance)} м`;
+            
+            // Обновляем игрока
+            player.update();
+            
+            // Обновляем препятствия
+            game.obstacles.forEach((obstacle, index) => {
+                obstacle.update();
+                
+                // Проверка столкновения
+                if (obstacle.collidesWith(player) && !game.isJumping) {
+                    showWordChallenge(obstacle.word);
+                    player.state = 'hit';
+                }
+                
+                // Удаляем препятствия за экраном
+                if (obstacle.x < -obstacle.width) {
+                    game.obstacles.splice(index, 1);
+                }
+            });
+            
+            // Обновляем облака и здания
+            game.clouds.forEach(cloud => cloud.update());
+            game.buildings.forEach(building => building.update());
+            
+            // Спавним новые препятствия
+            spawnObstacle();
         }
 
-        // Игровой цикл
-        function gameLoop() {
-            // Очистка
-            ctx.fillStyle = '#0a0e17';
+        function drawGame() {
+            // Очищаем холст
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Рисуем небо
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#bbdefb');
+            gradient.addColorStop(0.6, '#e3f2fd');
+            gradient.addColorStop(1, '#f3e5f5');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Рисуем звёзды
-            ctx.fillStyle = 'white';
-            stars.forEach(star => {
-                ctx.globalAlpha = star.brightness;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-            
-            // Рисуем горы
-            ctx.fillStyle = '#1e293b';
+            // Рисуем солнце
+            ctx.save();
+            ctx.fillStyle = '#ffd54f';
             ctx.beginPath();
-            ctx.moveTo(0, 400);
-            for (let x = 0; x <= canvas.width; x += 100) {
-                const y = 350 + Math.sin(x / 100) * 50;
-                ctx.lineTo(x, y);
-            }
-            ctx.lineTo(canvas.width, 400);
-            ctx.lineTo(0, 400);
+            ctx.arc(canvas.width - 100, 80, 40, 0, Math.PI * 2);
             ctx.fill();
             
-            // Рисуем снежную землю
-            ctx.fillStyle = '#f8fafc';
-            ctx.fillRect(0, 400, canvas.width, 200);
+            // Лучи солнца
+            ctx.strokeStyle = '#ffd54f';
+            ctx.lineWidth = 4;
+            for(let i = 0; i < 12; i++) {
+                const angle = (i * Math.PI) / 6;
+                const x1 = canvas.width - 100 + Math.cos(angle) * 45;
+                const y1 = 80 + Math.sin(angle) * 45;
+                const x2 = canvas.width - 100 + Math.cos(angle) * 60;
+                const y2 = 80 + Math.sin(angle) * 60;
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+            ctx.restore();
             
             // Рисуем облака
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            clouds.forEach(cloud => {
-                ctx.beginPath();
-                ctx.ellipse(cloud.x, cloud.y, cloud.width, cloud.height, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                cloud.x -= cloud.speed;
-                if (cloud.x < -cloud.width) {
-                    cloud.x = canvas.width + cloud.width;
-                }
-            });
+            game.clouds.forEach(cloud => cloud.draw());
             
-            // Игровая логика
-            if (gameActive && !gamePaused) {
-                // Физика прыжка
-                if (player.jumping) {
-                    player.y += player.vy;
-                    player.vy += 0.8;
-                    
-                    if (player.y >= 300) {
-                        player.y = 300;
-                        player.jumping = false;
-                        player.vy = 0;
-                    }
-                }
-                
-                // Обновляем препятствия
-                obstacles.forEach((obs, index) => {
-                    obs.x -= speed;
-                    
-                    // Проверка столкновения
-                    if (!obs.passed && 
-                        player.x < obs.x + obs.width &&
-                        player.x + player.width > obs.x &&
-                        player.y < obs.y + obs.height &&
-                        player.y + player.height > obs.y) {
-                        obs.passed = true;
-                        showWordTask();
-                    }
-                    
-                    if (obs.x < -obs.width) {
-                        obstacles.splice(index, 1);
-                    }
-                });
-                
-                // Создаём новые препятствия
-                if (Math.random() < 0.01) {
-                    obstacles.push({
-                        x: canvas.width,
-                        y: 320,
-                        width: 60,
-                        height: 40,
-                        passed: false
-                    });
-                }
-                
-                // Увеличиваем дистанцию и скорость
-                distance += speed / 60;
-                speed = 5 + Math.floor(distance / 100);
-                updateDistance();
+            // Рисуем здания
+            game.buildings.forEach(building => building.draw());
+            
+            // Рисуем землю (снег)
+            ctx.fillStyle = '#e3f2fd';
+            ctx.fillRect(0, game.groundY, canvas.width, canvas.height - game.groundY);
+            
+            // Рисуем снег на земле
+            ctx.fillStyle = 'white';
+            for(let i = 0; i < canvas.width; i += 20) {
+                const height = 10 + Math.sin(i * 0.01 + game.gameTime * 0.01) * 5;
+                ctx.fillRect(i, game.groundY, 15, height);
             }
             
-            // Рисуем препятствия (сугробы)
-            ctx.fillStyle = '#e2e8f0';
-            obstacles.forEach(obs => {
-                // Простой сугроб
-                ctx.beginPath();
-                ctx.ellipse(obs.x + obs.width/2, obs.y + obs.height/2, 
-                           obs.width/2, obs.height/2, 0, 0, Math.PI * 2);
-                ctx.fill();
+            // Рисуем препятствия
+            game.obstacles.forEach(obstacle => obstacle.draw());
+            
+            // Рисуем игрока
+            player.draw();
+            
+            // Рисуем снежинки
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for(let i = 0; i < 100; i++) {
+                const x = (game.distance * 2 + i * 10) % canvas.width;
+                const y = (Math.sin(game.distance * 0.01 + i) * 20 + i * 5) % canvas.height;
+                const size = Math.sin(game.distance * 0.02 + i) * 2 + 2;
                 
-                // Детали
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
                 ctx.beginPath();
-                ctx.arc(obs.x + 15, obs.y + 10, 5, 0, Math.PI * 2);
+                ctx.arc(x, y, size, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.beginPath();
-                ctx.arc(obs.x + 45, obs.y + 15, 5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#e2e8f0';
-            });
-            
-            // Рисуем персонажа
-            ctx.fillStyle = player.jumping ? '#3b82f6' : '#2563eb';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            
-            // Голова
-            ctx.fillStyle = '#fbbf24';
-            ctx.beginPath();
-            ctx.arc(player.x + player.width/2, player.y + 20, 20, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Ноги при беге
-            if (!player.jumping) {
-                const legOffset = Math.sin(Date.now() / 100) * 5;
-                ctx.fillStyle = '#1e40af';
-                ctx.fillRect(player.x + 10, player.y + player.height, 10, 30 + legOffset);
-                ctx.fillRect(player.x + 40, player.y + player.height, 10, 30 - legOffset);
             }
-            
-            requestAnimationFrame(gameLoop);
         }
 
-        // Запуск игры
-        window.addEventListener('load', () => {
-            init();
-            loadImages();
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            game.gameTime++;
+            
+            if (game.running || wordChallenge.style.display === 'block') {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function startGame() {
+            game = {
+                running: true,
+                distance: 0,
+                speed: 5,
+                baseSpeed: 5,
+                maxSpeed: 15,
+                acceleration: 0.0005,
+                lives: 3,
+                score: 0,
+                currentWord: null,
+                playerAnswer: [],
+                obstacles: [],
+                lastObstacleTime: 0,
+                obstacleInterval: 3000,
+                minObstacleInterval: 1000,
+                gravity: 0.8,
+                jumpPower: 15,
+                isJumping: false,
+                velocityY: 0,
+                gameTime: 0,
+                playerState: 'run',
+                animationFrame: 0,
+                groundY: canvas.height * 0.7,
+                clouds: game.clouds,
+                buildings: game.buildings
+            };
+            
+            player.state = 'run';
+            player.y = game.groundY - player.height;
+            player.x = 100;
+            
+            updateLives();
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            wordChallenge.style.display = 'none';
+            
+            gameLoop();
+        }
+
+        function gameOver() {
+            game.running = false;
+            document.getElementById('finalScore').textContent = `Вы пробежали: ${Math.floor(game.distance)} метров`;
+            gameScreen.style.display = 'none';
+            gameOverScreen.style.display = 'flex';
+            player.state = 'sad';
+        }
+
+        // Обработчики событий
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+        submitBtn.addEventListener('click', checkAnswer);
+
+        // Управление прыжком
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                player.jump();
+            }
         });
+
+        mobileJumpBtn.addEventListener('click', () => {
+            player.jump();
+        });
+
+        mobileJumpBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            player.jump();
+        });
+
+        // Обработка изменения размера окна
+        window.addEventListener('resize', () => {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            game.groundY = canvas.height * 0.7;
+            player.y = game.groundY - player.height;
+        });
+
+        // Инициализация
+        updateLives();
     </script>
 </body>
 </html>
