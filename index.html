@@ -200,11 +200,11 @@
 
         #wordChallenge {
             position: absolute;
-            top: 50%;
+            top: 20%; /* Плашка выше, не перекрывает персонажа */
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.98);
-            padding: 25px;
+            padding: 20px;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
@@ -218,7 +218,7 @@
         #wordDisplay {
             font-size: 2.2em;
             color: #0d47a1;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             letter-spacing: 2px;
             pointer-events: none;
             min-height: 60px;
@@ -237,20 +237,20 @@
         #letterButtons {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             touch-action: manipulation;
         }
 
         .letterBtn {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: linear-gradient(180deg, #42a5f5 0%, #1565c0 100%);
             color: white;
             border: none;
             border-radius: 50%;
-            font-size: 1.6em;
+            font-size: 1.5em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
@@ -297,7 +297,7 @@
 
         #message {
             position: absolute;
-            bottom: 20px;
+            top: 100px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.8);
@@ -415,6 +415,24 @@
             gap: 5px;
         }
 
+        .words-progress {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #388e3c;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         /* Адаптивность для мобильных */
         @media (max-width: 768px) {
             #gameContainer {
@@ -448,7 +466,8 @@
 
             #wordChallenge {
                 width: 95%;
-                padding: 20px;
+                padding: 15px;
+                top: 15%;
             }
 
             #wordDisplay {
@@ -457,8 +476,8 @@
             }
 
             .letterBtn {
-                width: 45px;
-                height: 45px;
+                width: 40px;
+                height: 40px;
                 font-size: 1.4em;
             }
 
@@ -477,6 +496,12 @@
                 font-size: 1.2em;
                 min-width: 180px;
                 margin: 8px;
+            }
+            
+            .words-progress {
+                top: 60px;
+                font-size: 0.8em;
+                padding: 6px 12px;
             }
         }
 
@@ -516,9 +541,13 @@
             }
 
             .letterBtn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.3em;
+                width: 36px;
+                height: 36px;
+                font-size: 1.2em;
+            }
+            
+            #wordChallenge {
+                top: 12%;
             }
         }
 
@@ -534,6 +563,11 @@
 
             #wordChallenge {
                 padding: 15px;
+                top: 10%;
+            }
+            
+            .words-progress {
+                top: 50px;
             }
         }
 
@@ -557,6 +591,11 @@
             #wordChallenge {
                 width: 80%;
                 max-width: 500px;
+                top: 15%;
+            }
+            
+            .words-progress {
+                top: 40px;
             }
         }
     </style>
@@ -571,7 +610,7 @@
         <div id="startScreen" style="display:none;">
             <h1>❄️ Зимняя грамматика ❄️</h1>
             <p class="instruction">Помоги персонажу пробежать через зимний город!<br>Прыгай через сугробы (Space/Тап) и заполняй пропуски в словах.</p>
-            <p class="instruction">Используй гласные буквы для заполнения пропусков.<br>У тебя есть 3 жизни. Изучи все слова чтобы победить!</p>
+            <p class="instruction">Можешь перепрыгнуть сугроб или изучить слово.<br>Изучи все слова чтобы победить!</p>
             <button class="btn" id="startBtn">НАЧАТЬ ИГРУ</button>
         </div>
 
@@ -587,6 +626,7 @@
                 </div>
             </div>
             <div class="speed-indicator" id="speedIndicator">⚡ 1x</div>
+            <div class="words-progress" id="wordsProgress">📚 0/40</div>
             <div id="wordChallenge">
                 <div id="wordDisplay"></div>
                 <div id="letterButtons"></div>
@@ -630,6 +670,7 @@
         const winRestartBtn = document.getElementById('winRestartBtn');
         const distanceDisplay = document.getElementById('distance');
         const speedIndicator = document.getElementById('speedIndicator');
+        const wordsProgress = document.getElementById('wordsProgress');
         const wordChallenge = document.getElementById('wordChallenge');
         const wordDisplay = document.getElementById('wordDisplay');
         const letterButtons = document.getElementById('letterButtons');
@@ -665,7 +706,7 @@
         images.player_sad.src = 'player_sad.png';
         images.snowpile.src = 'snowpile.png';
 
-        // Размеры изображений (увеличены для мобильных)
+        // Размеры изображений
         const imageSizes = {
             player_run1: {width: 100, height: 125},
             player_run2: {width: 100, height: 125},
@@ -771,8 +812,8 @@
             obstacleInterval: 2500,
             minObstacleInterval: 800,
             gravity: 0.9,
-            jumpPower: 20,
-            jumpForward: 3,
+            jumpPower: 18,
+            jumpForward: 2.5,
             isJumping: false,
             velocityY: 0,
             gameTime: 0,
@@ -785,7 +826,9 @@
             allWordsLearned: false,
             isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
             touchActive: false,
-            playerBaseY: 0
+            playerBaseY: 0,
+            playerMaxX: 150, // Максимальная позиция игрока справа
+            playerMinX: 80   // Минимальная позиция игрока слева
         };
 
         // Класс игрока с прыжком вперед и вверх
@@ -793,7 +836,8 @@
             constructor() {
                 this.width = 100;
                 this.height = 125;
-                this.x = 120;
+                this.baseX = 100; // Базовая позиция слева
+                this.x = this.baseX;
                 this.baseY = game.groundY - this.height;
                 this.y = this.baseY;
                 this.state = 'run';
@@ -802,9 +846,15 @@
                 this.jumpHeight = 180;
                 this.jumpProgress = 0;
                 this.jumpForwardSpeed = 0;
+                this.targetX = this.baseX; // Целевая позиция для плавного движения
             }
 
             update() {
+                // Плавное движение к целевой позиции
+                if (Math.abs(this.x - this.targetX) > 1) {
+                    this.x += (this.targetX - this.x) * 0.1;
+                }
+                
                 // Гравитация и прыжок
                 if (game.isJumping) {
                     this.jumpProgress += 0.04;
@@ -816,7 +866,7 @@
                         this.y = this.baseY - heightOffset;
                         
                         // Движение вперед во время прыжка
-                        this.x += game.jumpForward;
+                        this.targetX = Math.min(game.playerMaxX, this.targetX + game.jumpForward);
                         
                         if (heightOffset > 20 && this.state !== 'jump') {
                             this.state = 'jump';
@@ -826,10 +876,16 @@
                         game.isJumping = false;
                         this.state = 'run';
                         this.y = this.baseY;
+                        
+                        // Плавное возвращение к базовой позиции после прыжка
+                        this.targetX = this.baseX;
                     }
                 } else {
                     this.y = this.baseY;
                     this.state = 'run';
+                    
+                    // Постепенно возвращаемся к базовой позиции
+                    this.targetX += (this.baseX - this.targetX) * 0.05;
                     
                     this.animationTimer++;
                     if (this.animationTimer > 10) {
@@ -839,7 +895,8 @@
                 }
                 
                 // Ограничиваем позицию игрока
-                this.x = Math.max(50, Math.min(this.x, canvas.width - this.width - 50));
+                this.x = Math.max(game.playerMinX, Math.min(this.x, game.playerMaxX));
+                this.targetX = Math.max(game.playerMinX, Math.min(this.targetX, game.playerMaxX));
             }
 
             draw() {
@@ -948,9 +1005,22 @@
                     this.y = this.baseY;
                 }
             }
+            
+            // Проверка, перепрыгнул ли игрок препятствие
+            hasJumpedOver(obstacle) {
+                if (!game.isJumping) return false;
+                
+                // Игрок перепрыгнул, если он выше препятствия и прошел мимо него
+                const playerBottom = this.y + this.height;
+                const obstacleTop = obstacle.y;
+                const playerRight = this.x + this.width;
+                const obstacleLeft = obstacle.x;
+                
+                return playerBottom < obstacleTop && playerRight > obstacleLeft;
+            }
         }
 
-        // Класс препятствия (увеличенный сугроб)
+        // Класс препятствия (сугроб)
         class Obstacle {
             constructor() {
                 const imgSize = imageSizes.snowpile;
@@ -959,15 +1029,30 @@
                 this.x = canvas.width;
                 this.y = game.groundY - this.height;
                 this.speed = game.speed;
+                this.word = this.getUnlearnedWord();
+                this.showWord = true; // Флаг, нужно ли показывать слово
+                this.jumpedOver = false; // Флаг, был ли сугроб перепрыгнут
+            }
+            
+            getUnlearnedWord() {
                 const unlearnedWords = wordList.filter(word => !word.learned);
-                this.word = unlearnedWords.length > 0 ? 
-                    unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)] :
-                    wordList[Math.floor(Math.random() * wordList.length)];
+                if (unlearnedWords.length > 0) {
+                    return unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)];
+                } else {
+                    // Если все слова изучены, берем случайное слово
+                    return wordList[Math.floor(Math.random() * wordList.length)];
+                }
             }
 
             update() {
                 this.x -= this.speed;
                 this.speed = game.speed;
+                
+                // Проверяем, перепрыгнул ли игрок сугроб
+                if (!this.jumpedOver && player.hasJumpedOver(this)) {
+                    this.jumpedOver = true;
+                    this.showWord = false; // Не показывать слово, если перепрыгнули
+                }
             }
 
             draw() {
@@ -981,6 +1066,23 @@
                     ctx.drawImage(images.snowpile, this.x, this.y + offsetY, drawWidth, drawHeight);
                 } else {
                     this.drawFallback();
+                }
+                
+                // Отображаем подсказку, если слово не изучено
+                if (!this.word.learned && this.showWord && !this.jumpedOver) {
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.fillRect(this.x - 10, this.y - 40, this.width + 20, 35);
+                    ctx.strokeStyle = '#1565c0';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(this.x - 10, this.y - 40, this.width + 20, 35);
+                    
+                    ctx.fillStyle = '#0d47a1';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('Слово!', this.x + this.width/2, this.y - 22);
+                    ctx.restore();
                 }
             }
 
@@ -1009,6 +1111,8 @@
             }
 
             collidesWith(player) {
+                if (this.jumpedOver) return false; // Если перепрыгнули, нет столкновения
+                
                 const playerBottom = player.y + player.height;
                 const playerTop = player.y;
                 const obstacleTop = this.y;
@@ -1173,6 +1277,7 @@
         function updateLearnedWords() {
             game.learnedWords = wordList.filter(word => word.learned).length;
             learnedWordsDisplay.textContent = game.learnedWords;
+            wordsProgress.textContent = `📚 ${game.learnedWords}/40`;
             
             // Проверяем победу
             if (game.learnedWords >= wordList.length && !game.allWordsLearned) {
@@ -1254,14 +1359,18 @@
                     game.running = true;
                     player.state = 'run';
                     
-                    if (game.obstacles.length > 0) {
-                        game.obstacles.shift();
+                    // Находим и удаляем препятствие с этим словом
+                    const obstacleIndex = game.obstacles.findIndex(obs => 
+                        obs.word === game.currentWord && obs.showWord
+                    );
+                    if (obstacleIndex !== -1) {
+                        game.obstacles.splice(obstacleIndex, 1);
                     }
                     
                     game.score += 100;
                     
                     // Увеличиваем скорость после каждого правильного ответа
-                    game.speed = Math.min(game.maxSpeed, game.speed + 0.5);
+                    game.speed = Math.min(game.maxSpeed, game.speed + 0.3);
                     updateSpeedIndicator();
                 }, 500);
             } else {
@@ -1280,9 +1389,6 @@
                         wordChallenge.style.display = 'none';
                         game.running = true;
                         player.state = 'run';
-                        if (game.obstacles.length > 0) {
-                            game.obstacles.shift();
-                        }
                     }, 1500);
                 }
             }
@@ -1318,10 +1424,18 @@
             game.obstacles.forEach((obstacle, index) => {
                 obstacle.update();
                 
-                if (obstacle.collidesWith(player)) {
+                // Если игрок перепрыгнул сугроб и слово не изучено
+                if (obstacle.jumpedOver && !obstacle.word.learned && obstacle.showWord) {
+                    showMessage('Перепрыгнул!', '#42a5f5');
+                    obstacle.showWord = false;
+                }
+                
+                // Столкновение только если не перепрыгнули
+                if (obstacle.collidesWith(player) && obstacle.showWord) {
                     showWordChallenge(obstacle.word);
                 }
                 
+                // Удаляем препятствия за экраном
                 if (obstacle.x < -obstacle.width) {
                     game.obstacles.splice(index, 1);
                 }
@@ -1422,8 +1536,8 @@
                 obstacleInterval: 2500,
                 minObstacleInterval: 800,
                 gravity: 0.9,
-                jumpPower: 20,
-                jumpForward: 3,
+                jumpPower: 18,
+                jumpForward: 2.5,
                 isJumping: false,
                 velocityY: 0,
                 gameTime: 0,
@@ -1436,13 +1550,16 @@
                 allWordsLearned: false,
                 isMobile: game.isMobile,
                 touchActive: false,
-                playerBaseY: 0
+                playerBaseY: 0,
+                playerMaxX: 150,
+                playerMinX: 80
             };
             
             player.state = 'run';
             player.baseY = game.groundY - player.height;
             player.y = player.baseY;
-            player.x = 120;
+            player.x = 100;
+            player.targetX = 100;
             player.jumpProgress = 0;
             
             updateLives();
